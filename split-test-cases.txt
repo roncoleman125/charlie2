@@ -1,0 +1,19 @@
+1. Dan's same card shoe tests.
+1A. Hit one - done
+1B. Stay one - done
+1C. Double-down one - done
+1D. Re-split - done
+1E. Charlie one - done
+1E. Charlie both - done
+1F. Double-down both - done
+1G. Hit both - done
+1H. Stay both - done
+1I. Hit one, stay other - done
+1J. Stay one, hit other - done
+1K. Hit one, double-down other - done
+1L. Stay one, double-down other - done
+1M Double-down one, stay other - done
+1N. Double-down one, hit other - done
+2. Blackjack one - done
+3. Blackjack other
+4. Blackjack both

@@ -39,8 +39,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
+
 
 /**
  * This class implements the game server.
@@ -54,8 +56,9 @@ public class GameServer {
         _props.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
         _props.setProperty("org.slf4j.simpleLogger.showDateTime", "true");
         _props.setProperty("org.slf4j.simpleLogger.dateTimeFormat","HH:mm:ss");
+        _props.setProperty("LOGFILE","log-server.out");
     }
-    protected static  Logger LOG = LoggerFactory.getLogger(GameServer.class);
+    protected static  Logger LOG = Logger.getLogger(GameServer.class);
     protected final static String HOUSE_ACTOR = "HOUSE";
     protected final static Random ran = new Random(0);
     protected final static Integer TOPOLOGY_PORT = 1234;

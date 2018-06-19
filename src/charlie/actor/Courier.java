@@ -52,15 +52,16 @@ import com.googlecode.actorom.Address;
 import com.googlecode.actorom.annotation.OnMessage;
 import com.googlecode.actorom.remote.ClientTopology;
 import java.util.concurrent.TimeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 /**
  * This class implements the courier actor between the client and server.
  * @author Ron Coleman
  */
 public class Courier {  
-    private final Logger LOG = LoggerFactory.getLogger(Courier.class);
+    private final Logger LOG = Logger.getLogger(Courier.class);
 
     private final IUi ui;
     protected Actor player;

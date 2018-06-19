@@ -53,8 +53,9 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 /**
  * This class implements the main game frame.
@@ -67,8 +68,9 @@ public class GameFrame extends javax.swing.JFrame {
         props.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
         props.setProperty("org.slf4j.simpleLogger.showDateTime", "true");
         props.setProperty("org.slf4j.simpleLogger.dateTimeFormat","HH:mm:ss");
+        props.setProperty("LOGFILE","log-client.out");
     }
-    protected final Logger LOG = LoggerFactory.getLogger(GameFrame.class);
+    protected final Logger LOG = Logger.getLogger(GameFrame.class);
     protected final String MY_HOST = "127.0.0.1";
     protected final Integer MY_PORT = 2345;
     protected final String GAME_SERVER = "127.0.0.1";
@@ -104,6 +106,13 @@ public class GameFrame extends javax.swing.JFrame {
      * Constructor
      */
     public GameFrame() {
+        // Outputs CWD log4j uses where log4j.properties needs to be.
+        // See http://logging.apache.org/log4j/1.2/faq.html#noconfig
+//        System.err.println(Thread
+//                .currentThread()
+//                .getContextClassLoader()
+//                .getResource("."));
+        
         LOG.info("client started");
         
         initComponents();

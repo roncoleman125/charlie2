@@ -52,15 +52,14 @@ import com.googlecode.actorom.annotation.OnMessage;
 import com.googlecode.actorom.remote.ClientTopology;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 /**
  * This class implements the game interface to a "real" player.
  * @author Ron Coleman
  */
 public class RealPlayer implements IPlayer {
-    private final Logger LOG = LoggerFactory.getLogger(RealPlayer.class);
+    private final Logger LOG = Logger.getLogger(RealPlayer.class);
     ClientTopology topology;
     protected Address myAddress;
     protected Actor courier;   

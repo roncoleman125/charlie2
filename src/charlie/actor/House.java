@@ -37,15 +37,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 /**
  * This class implements the house.
  * @author Ron Coleman
  */
 public class House implements Serializable {
-    private final Logger LOG = LoggerFactory.getLogger(House.class);
+    private final Logger LOG = Logger.getLogger(House.class);
     @TopologyInstance private Topology topology;
     private final String PLAYER_ACTOR = "PLAYER-";
     protected List<RealPlayer> players = new ArrayList<>();

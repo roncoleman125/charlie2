@@ -51,8 +51,7 @@ import java.util.Properties;
 import java.util.Random;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 import charlie.plugin.ILogan;
 
 /**
@@ -61,7 +60,7 @@ import charlie.plugin.ILogan;
  * @author Ron Coleman
  */
 public final class ATable extends JPanel implements Runnable, IUi, MouseListener {
-    private final Logger LOG = LoggerFactory.getLogger(ATable.class);
+    private final Logger LOG = Logger.getLogger(ATable.class);
     protected Random ran = new Random();
     protected String[] huey = {"Huey"};
     protected String[] dewey = {"Dewey"};

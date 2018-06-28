@@ -2,8 +2,7 @@ package charlie.card;
 
 import charlie.card.Card.Suit;
 import java.util.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 /**
  * This class implements a test of splits by "forcing" player to receive
@@ -12,7 +11,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SplitShoe01 extends Shoe{
     
-    private final Logger LOG = LoggerFactory.getLogger(SplitShoe01.class);
+    private final Logger LOG = Logger.getLogger(SplitShoe01.class);
     
     public static int gameNumber = 0;
     private int cardNumber = 1;

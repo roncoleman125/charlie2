@@ -101,4 +101,13 @@ abstract public class Message implements Serializable {
         return stamp;
     }
     
+    /**
+     * Gets string version of this message.
+     * @return String
+     */
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName();
+    }
+    
 }

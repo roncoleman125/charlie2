@@ -28,8 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 /**
  * This class implements a six deck shoe, the standard in many houses.
@@ -37,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author Ron Coleman
  */
 public class Shoe  implements IShoe {
-    private final Logger LOG = LoggerFactory.getLogger(Shoe.class);
+    private final Logger LOG = Logger.getLogger(Shoe.class);
     
     protected Integer numDecks = 6;
     protected List<Card> cards = new ArrayList<>();

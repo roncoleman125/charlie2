@@ -29,7 +29,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Objects;
 import java.util.Random;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 /**
  * This class implements the hand id.
@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  * @author Ron Coleman
  */
 public class Hid implements Serializable {
-    private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(Hid.class);
+    private final static Logger LOG = Logger.getLogger(Hid.class);
     private static Random ran = new Random();
     private static String host = "UNKNOWN";
     private Long key = Math.abs(ran.nextLong());

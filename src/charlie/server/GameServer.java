@@ -39,8 +39,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 import org.apache.log4j.Logger;
 
 
@@ -52,10 +50,6 @@ public class GameServer {
     static {
         // For properties see http://www.slf4j.org/api/org/slf4j/impl/SimpleLogger.html
         Properties _props = System.getProperties();
-        _props.setProperty("org.slf4j.simpleLogger.logFile", "System.out");
-        _props.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
-        _props.setProperty("org.slf4j.simpleLogger.showDateTime", "true");
-        _props.setProperty("org.slf4j.simpleLogger.dateTimeFormat","HH:mm:ss");
         _props.setProperty("LOGFILE","log-server.out");
     }
     protected static  Logger LOG = Logger.getLogger(GameServer.class);

@@ -41,8 +41,11 @@ public class Shoe01 extends Shoe {
 //        cards.add(new Card(4, Card.Suit.DIAMONDS));
 //        cards.add(new Card(6, Card.Suit.HEARTS));
 //        cards.add(new Card(5, Card.Suit.CLUBS)); 
-        super.ran = new Random(0);
+        super.ran = new Random(1);
         
+        // This causes 8,8 at some point which is useful for debugging splits
+        ran.nextInt();
+                
         super.numDecks = 1;
         
         super.load();

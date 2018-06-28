@@ -23,15 +23,14 @@
 package charlie.card;
 
 import charlie.plugin.IShoe;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 /**
  * This class implements the shoe factory.
  * @author Ron Coleman
  */
 public class ShoeFactory {     
-    private static final Logger LOG = LoggerFactory.getLogger(ShoeFactory.class);
+    private static final Logger LOG = Logger.getLogger(ShoeFactory.class);
     /**
      * Gets an instance of a shoe based on a scenario.
      * @param scenario Scenario

@@ -40,8 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 /**
  * This class implements the Blackjack dealer.
@@ -55,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * @author Ron Coleman
  */
 public class Dealer implements Serializable { 
-    private final Logger LOG = LoggerFactory.getLogger(Dealer.class);  
+    private final Logger LOG = Logger.getLogger(Dealer.class);  
     protected final static Double BLACKJACK_PAYS = 3/2.;
     protected final static Double CHARLIE_PAYS = 2/1.;
     protected final static Double PROFIT = 1.0;

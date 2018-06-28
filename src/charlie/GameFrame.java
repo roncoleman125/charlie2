@@ -64,10 +64,6 @@ import org.apache.log4j.Logger;
 public class GameFrame extends javax.swing.JFrame {
     static {
         Properties props = System.getProperties();
-        props.setProperty("org.slf4j.simpleLogger.logFile", "System.out");
-        props.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
-        props.setProperty("org.slf4j.simpleLogger.showDateTime", "true");
-        props.setProperty("org.slf4j.simpleLogger.dateTimeFormat","HH:mm:ss");
         props.setProperty("LOGFILE","log-client.out");
     }
     protected final Logger LOG = Logger.getLogger(GameFrame.class);
@@ -126,6 +122,8 @@ public class GameFrame extends javax.swing.JFrame {
      * Initializes the frame.
      */
     protected final void init() {
+        this.setTitle("Charlie2");
+        
         table = new ATable(this, this.surface);
 
         surface.add(table);

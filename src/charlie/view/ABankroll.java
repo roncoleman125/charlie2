@@ -97,7 +97,8 @@ public class ABankroll {
             g.setColor(Color.CYAN);
             remark = " !!!!!";
         }
-            
-        g.drawString("Bankroll: "+amount+remark, x, y);        
+        
+        String t = String.format("%7.2f%s",amount,remark);
+        g.drawString("Bankroll: "+t, x, y);        
     }
 }

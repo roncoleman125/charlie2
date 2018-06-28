@@ -52,8 +52,6 @@ import com.googlecode.actorom.Address;
 import com.googlecode.actorom.annotation.OnMessage;
 import com.googlecode.actorom.remote.ClientTopology;
 import java.util.concurrent.TimeUnit;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 import org.apache.log4j.Logger;
 
 /**
@@ -224,7 +222,7 @@ public class Courier {
      */
     @OnMessage(type = Play.class)
     public void onReceive(Play turn) {
-        LOG.info("got trun = "+turn.getHid());
+        LOG.info("got turn = "+turn.getHid());
         
         ui.turn(turn.getHid());
 

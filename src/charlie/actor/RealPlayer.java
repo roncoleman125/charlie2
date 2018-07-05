@@ -28,6 +28,7 @@ import charlie.message.view.from.Hit;
 import charlie.card.Hid;
 import charlie.dealer.Dealer;
 import charlie.card.Hand;
+import charlie.message.Message;
 import charlie.plugin.IPlayer;
 import charlie.message.view.from.DoubleDown;
 import charlie.message.view.from.Request;
@@ -46,58 +47,71 @@ import charlie.message.view.to.GameStart;
 import charlie.message.view.to.Shuffle;
 import charlie.message.view.to.SplitToView;
 import charlie.message.view.to.Win;
-import com.googlecode.actorom.Actor;
-import com.googlecode.actorom.Address;
-import com.googlecode.actorom.annotation.OnMessage;
-import com.googlecode.actorom.remote.ClientTopology;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import org.apache.log4j.Logger;
 
 /**
  * This class implements the game interface to a "real" player.
  * @author Ron Coleman
  */
-public class RealPlayer implements IPlayer {
+public class RealPlayer extends LastActor implements Listener, IPlayer {
     private final Logger LOG = Logger.getLogger(RealPlayer.class);
-    ClientTopology topology;
-    protected Address myAddress;
-    protected Actor courier;   
+    protected InetAddress myAddress;
     protected Dealer dealer;
     protected Hand playing;
 
     /**
      * Constructor
      * @param dealer Dealer the player is using.
-     * @param courierAddress Actor address of our courier to the remote host
+     * @param courier Courier address + port
      */
-    public RealPlayer(Dealer dealer, Address courierAddress) {
-        this.dealer = dealer;
-        
-        String host = courierAddress.getHost();
-        Integer port = courierAddress.getPort();
-        LOG.info("courier addr = "+courierAddress);
-        
-        this.topology = new ClientTopology(host, port, 5, TimeUnit.SECONDS, 3, TimeUnit.SECONDS);
-
-        // Tell courier surrogate's ready
-        this.courier = topology.getActor(courierAddress);
+    public RealPlayer(Dealer dealer, String courier) {
+        super(System.getProperty("charlie.server.realplayer"), courier);
+        try {
+            this.myAddress = InetAddress.getLocalHost();
+            this.dealer = dealer;
+        } catch (UnknownHostException ex) {
+            java.util.logging.Logger.getLogger(RealPlayer.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     /**
      * Sends ready to the courier to let remote host know we're connected.
      */
     public void ready() {
-        courier.send(new Ready(myAddress));
+        send(new Ready(myAddress));
     }
 
+    @Override
+    public void received(Message msg) {
+        if(msg instanceof Hit)
+            onReceive((Hit)msg);
+        
+        else if(msg instanceof Stay)
+            onReceive((Stay)msg);
+        
+        else if (msg instanceof DoubleDown)
+            onReceive((DoubleDown) msg);
+
+        else if (msg instanceof SplitFromView)
+            onReceive((SplitFromView) msg);
+        
+        else if (msg instanceof Bet) {
+            onReceive((Bet) msg);
+        }
+        else
+            LOG.error(this.getClass().getSimpleName()+" dropped message: "+msg.getClass().getSimpleName());
+    }
+    
     /**
      * Receives a bet from the courier.
      * @param bet Bet
      */
-    @OnMessage(type = Bet.class)
     public void onReceive(Bet bet) {     
-        LOG.info("player actor received bet = "+bet.getHid().getAmt());
+        LOG.info(this.getClass().getSimpleName()+" received bet = "+bet.getHid().getAmt());
         
         dealer.bet(this, bet.getHid());
     }
@@ -106,9 +120,8 @@ public class RealPlayer implements IPlayer {
      * Receives a request from the courier.
      * @param request Request
      */
-    @OnMessage(type = Request.class)
     public void onReceive(Request request) {
-        LOG.info("received request = "+request);
+        LOG.info(this.getClass().getSimpleName()+" received request = "+request.getClass().getSimpleName());
         Hid hand = request.getHid();
         
         if(request instanceof Hit)
@@ -125,14 +138,14 @@ public class RealPlayer implements IPlayer {
         }
         
         else
-            LOG.error("received unknown request: "+request+" for hand = "+hand);
+            LOG.error(this.getClass().getSimpleName()+" received unknown request: "+request+" for hand = "+hand);
     } 
 
     /**
      * Sets my address since courier doesn't know where it is.
      * @param mine My address
      */
-    public void setMyAddress(Address mine) {
+    public void setMyAddress(InetAddress mine) {
         this.myAddress = mine;
     }
 
@@ -150,7 +163,8 @@ public class RealPlayer implements IPlayer {
      */
     @Override
     public void bust(Hid hid) {
-        courier.send(new Bust(hid));
+//        courier.send(new Bust(hid));
+        send(new Bust(hid));
     }
     
     /**
@@ -159,7 +173,8 @@ public class RealPlayer implements IPlayer {
      */
     @Override
     public void win(Hid hid) {
-        courier.send(new Win(hid));
+//        courier.send(new Win(hid));
+        send(new Win(hid));
     }
     
     /**
@@ -168,7 +183,8 @@ public class RealPlayer implements IPlayer {
      */
     @Override
     public void lose(Hid hid) {
-        courier.send(new Loose(hid));
+//        courier.send(new Loose(hid));
+        send(new Loose(hid));
     }
     
     /**
@@ -177,7 +193,8 @@ public class RealPlayer implements IPlayer {
      */
     @Override
     public void push(Hid hid) {
-        courier.send(new Push(hid));
+//        courier.send(new Push(hid));
+        send(new Push(hid));
     }
 
     /**
@@ -186,7 +203,7 @@ public class RealPlayer implements IPlayer {
      */
     @Override
     public void startGame(List<Hid> hids,int shoeSize) {
-        courier.send(new GameStart(hids,shoeSize));
+        send(new GameStart(hids,shoeSize));
     }
 
     /**
@@ -194,7 +211,8 @@ public class RealPlayer implements IPlayer {
      */
     @Override
     public void endGame(int shoeSize) {
-        courier.send(new GameOver(shoeSize));
+//        courier.send(new GameOver(shoeSize));
+        send(new GameOver(shoeSize));
     }
 
     /**
@@ -202,7 +220,8 @@ public class RealPlayer implements IPlayer {
      */
     @Override
     public void shuffling() {
-        courier.send(new Shuffle());
+//        courier.send(new Shuffle());
+        send(new Shuffle());
     }
 
     /**
@@ -211,7 +230,8 @@ public class RealPlayer implements IPlayer {
      */
     @Override
     public void play(Hid hid) {
-        courier.send(new Play(hid));
+//        courier.send(new Play(hid));
+        send(new Play(hid));
     }
 
     /**
@@ -224,7 +244,8 @@ public class RealPlayer implements IPlayer {
     public void deal(Hid hid, Card card, int[] values) {
         Deal deal = new Deal(hid,values,card);
         
-        courier.send(deal);
+//        courier.send(deal);
+        send(deal);
     }
     
     /**
@@ -233,7 +254,8 @@ public class RealPlayer implements IPlayer {
      */
     @Override
     public void blackjack(Hid hid) {
-        courier.send(new Blackjack(hid) );
+//        courier.send(new Blackjack(hid) );
+        send(new Blackjack(hid) );
     }
     
     /**
@@ -242,7 +264,8 @@ public class RealPlayer implements IPlayer {
      */
     @Override
     public void charlie(Hid hid) {
-        courier.send(new Charlie(hid) );
+//        courier.send(new Charlie(hid) );
+        send(new Charlie(hid) );
     }
     
     /**
@@ -252,7 +275,8 @@ public class RealPlayer implements IPlayer {
      */
     @Override
     public void split(Hid newHid, Hid hid){
-        courier.send(new SplitToView(newHid, hid));
+//        courier.send(new SplitToView(newHid, hid));
+        send(new SplitToView(newHid, hid));
     }
     
     /**
@@ -261,6 +285,6 @@ public class RealPlayer implements IPlayer {
      */
     @Override
     public String toString() {
-        return this.myAddress + " -> " + courier.getAddress();
+        return this.myAddress + "";
     }
 }

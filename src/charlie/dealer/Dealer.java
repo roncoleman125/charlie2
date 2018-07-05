@@ -85,7 +85,7 @@ public class Dealer implements Serializable {
         this.house = house;
 
         // Instantiate the shoe
-        Properties props = house.getProps();
+        Properties props = System.getProperties();
         
         String scenario = props.getProperty("charlie.shoe", "charlie.card.Shoe");
         LOG.info("using scenario = '"+scenario+"'");
@@ -157,7 +157,9 @@ public class Dealer implements Serializable {
         }
         
         String name_ = name.toLowerCase();
-        String className = house.getProps().getProperty("charlie.bot." + name_);
+        Properties props = System.getProperties();
+        
+        String className = props.getProperty("charlie.bot." + name_);
         if (className == null) {
             LOG.info("no bot configured for charlie.bot."+name_);
             return null;
@@ -779,7 +781,7 @@ public class Dealer implements Serializable {
      * Loads the side bet rule.
      */
     protected final void loadSideRule() {        
-        String className = house.getProps().getProperty(Constant.PROPERTY_SIDE_BET_RULE);
+        String className = System.getProperty(Constant.PROPERTY_SIDE_BET_RULE);
         
         if(className == null) 
             return;

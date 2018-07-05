@@ -24,7 +24,7 @@ package charlie.message.view.from;
 
 import charlie.message.Message;
 import charlie.server.Ticket;
-import com.googlecode.actorom.Address;
+import java.net.InetAddress;
 
 /**
  * This class implements remote myAddress arrival post login.
@@ -33,14 +33,16 @@ import com.googlecode.actorom.Address;
 public class Arrival extends Message {
     protected final Ticket ticket;
     protected boolean botEnabled;
+    private final int port;
     
     /**
      * Constructor
      * @param ticket Ticket
      * @param source Source address
      */
-    public Arrival(Ticket ticket,Address source) {
+    public Arrival(Ticket ticket,InetAddress source,int port) {
         super(source);
+        this.port = port;
         this.ticket = ticket;
         this.botEnabled = true;
     }
@@ -67,5 +69,9 @@ public class Arrival extends Message {
      */
     public void enableBot(boolean enable) {
         botEnabled = enable;
+    }
+    
+    public int getPort() {
+        return port;
     }
 }

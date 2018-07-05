@@ -24,98 +24,91 @@ package charlie.actor;
 
 import charlie.card.Hid;
 import charlie.dealer.Dealer;
+import charlie.message.Message;
 import charlie.plugin.IPlayer;
 import charlie.message.view.from.Arrival;
 import charlie.server.GameServer;
 import charlie.server.Ticket;
-import com.googlecode.actorom.Address;
-import com.googlecode.actorom.Topology;
-import com.googlecode.actorom.annotation.OnMessage;
-import com.googlecode.actorom.annotation.TopologyInstance;
-import java.io.Serializable;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 import org.apache.log4j.Logger;
 
 /**
  * This class implements the house.
  * @author Ron Coleman
  */
-public class House implements Serializable {
+public class House extends LastActor implements Listener {
     private final Logger LOG = Logger.getLogger(House.class);
-    @TopologyInstance private Topology topology;
     private final String PLAYER_ACTOR = "PLAYER-";
     protected List<RealPlayer> players = new ArrayList<>();
     private Integer nextPlayerId = 0;
-    private final Properties props;
     private final GameServer server;
     protected HashMap<IPlayer,Ticket> accounts = new HashMap<>();
 
     /**
      * Constructor
      * @param server Game server
-     * @param props Properties used by the server
      */
-    public House(GameServer server,Properties props) {    
+    public House(GameServer server) { 
+        super(System.getProperty("charlie.server.house"));
         this.server = server;
-        this.props = props;
+    }
+    
+    @Override
+    public void received(Message msg) {
+        if(!(msg instanceof Arrival))
+            return;
+        
+        onReceive((Arrival)msg);
     }
     
     /**
-     * Receives an arrival by a a myAddress.
+     * Receives an arrival by a client.
      * At login the user gets a ticket from the server which the
      * house uses to validate. If the ticket is valid, the house
      * allocates a dealer and spawns a myAddress actor. The dealer
      * then waits for contact from a courier through the myAddress.
      * In other words, the whole design is largely passive in nature.
-     * @param arrival 
+     * @param arrival Arrival message
      */
-    @OnMessage(type = Arrival.class)
     public void onReceive(Arrival arrival) {
-        Address courierAddress = arrival.getSource();
-        LOG.info("arrival from "+courierAddress);
-        
         Ticket ticket = arrival.getTicket();
-        
-        if(!valid(ticket)) {
-            LOG.error("invalid ticket = "+ticket);
+
+        if (!valid(ticket)) {
+            LOG.error("invalid ticket = " + ticket);
             return;
         }
 
-        LOG.info("validated ticket = "+ticket);
+        LOG.info("validated ticket = " + ticket);
         
+        InetAddress courierAddress = arrival.getSource();
+        LOG.info("arrival from " + courierAddress);
+
+        String courier = courierAddress.getHostAddress() + ":" + arrival.getPort();
         // Get a dealer for this player
         // Note: if we were allocating dealers from a pool, this is the place
         // to implement that logic. For now we'll just spawn dealers without
         // restriction.
         Dealer dealer = new Dealer(this);
-        // Spawn an actor in server
-        RealPlayer player = new RealPlayer(dealer, courierAddress);
-        accounts.put(player,ticket);
+
+        // Spawn a "real player" in server       
+        RealPlayer player = new RealPlayer(dealer, courier);
+        player.setListener(player);
         
-        synchronized(this) {
+        player.start();
+
+        accounts.put(player, ticket);
+
+        synchronized (this) {
             nextPlayerId++;
-            
+
             players.add(player);
         }
-        
-        String id = PLAYER_ACTOR + nextPlayerId;
-        Address playerAddress = topology.spawnActor(id, player); 
-        
-        player.setMyAddress(playerAddress);
-        
-        // Inform player we're ready
-        player.ready();        
-    }
 
-    /**
-     * Gets the house properties
-     * @return Properties
-     */
-    public Properties getProps() {
-        return props;
+        // Inform player we're ready
+        player.ready();
     }
     
     /**

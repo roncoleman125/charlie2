@@ -1,10 +1,6 @@
-charlie.server.host 127.0.0.1
-charlie.server.topology.port 1234
-charlie.server.login.port 9000
+charlie.server.login 127.0.0.1:9001
+charlie.server.house 127.0.0.1:1235
+charlie.server.realplayer 127.0.0.1:8501
+charlie.client.courier -1:8001
 charlie.debug true
 charlie.shoe charlie.card.Shoe01
-#charlie.shoe charlie.card.ShoeSameCards
-#charlie.advisor charlie.advisor.BasicStrategy
-#charlie.bot.logan5 charlie.bot.client.MySimpleBot
-#charlie.bot.huey charlie.bot.server.MyBot
-#charlie.bot.dewey charlie.bot.server.MyBot

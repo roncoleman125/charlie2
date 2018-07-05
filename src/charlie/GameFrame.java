@@ -24,6 +24,7 @@ package charlie;
 
 import charlie.card.Hid;
 import charlie.actor.Courier;
+import charlie.actor.Boot;
 import charlie.audio.SoundFactory;
 import charlie.card.Card;
 import charlie.card.Hand;
@@ -34,23 +35,19 @@ import charlie.plugin.IAdvisor;
 import charlie.server.Login;
 import charlie.server.Ticket;
 import charlie.view.ATable;
-import com.googlecode.actorom.Actor;
-import com.googlecode.actorom.Address;
-import com.googlecode.actorom.Topology;
-import com.googlecode.actorom.remote.ClientTopology;
-import com.googlecode.actorom.remote.ServerTopology;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 //import org.slf4j.Logger;
@@ -67,20 +64,13 @@ public class GameFrame extends javax.swing.JFrame {
         props.setProperty("LOGFILE","log-client.out");
     }
     protected final Logger LOG = Logger.getLogger(GameFrame.class);
-    protected final String MY_HOST = "127.0.0.1";
     protected final Integer MY_PORT = 2345;
-    protected final String GAME_SERVER = "127.0.0.1";
-    protected final Integer GAME_SERVER_PORT = 9000;
-    protected final Integer HOUSE_PORT = 1234;
-    protected Actor house;
     protected Courier courier;
     protected ATable table;
     protected boolean connected = false;
     protected final String COURIER_ACTOR = "COURIER";
     protected final String ADVISOR_PROPERTY = "charlie.advisor";
     protected final String SOUND_EFFECTS_PROPERTY = "charlie.sounds.enabled";
-    protected Topology serverTopology;
-    protected Topology clientTopology;
     protected final List<Hid> hids = new ArrayList<>();
     protected final HashMap<Hid,Hand> hands = new HashMap<>();
     protected int handIndex = 0;
@@ -88,7 +78,7 @@ public class GameFrame extends javax.swing.JFrame {
     protected boolean dubblable;
     protected IAdvisor advisor;
     protected Hand dealerHand;
-    private Properties props;
+//    private Properties props;
     protected boolean manuallyControlled = true;
     
     /**
@@ -143,7 +133,7 @@ public class GameFrame extends javax.swing.JFrame {
     protected void loadConfig() {
         try {
             // Get the properties
-            props = new Properties();
+            Properties props = System.getProperties();
             props.load(new FileInputStream("charlie.props"));   
             
             // Configure sounds
@@ -168,7 +158,7 @@ public class GameFrame extends javax.swing.JFrame {
      */
     protected void loadAdvisor() {
         try {
-            String className = props.getProperty(ADVISOR_PROPERTY);
+            String className = System.getProperty(ADVISOR_PROPERTY);
 
             if (className == null)
                 return;
@@ -227,53 +217,43 @@ public class GameFrame extends javax.swing.JFrame {
     }
 
     /**
-     * Connects local courier to IPlayer (on server).
+     * Connects to server
      * @param panel Panel courier perceives.
      * @return True if connected, false if connect attempt fails.
      */
     private boolean connect(ATable panel) {
         try {
             // Login to the server
-            Socket client = new Socket(GAME_SERVER, GAME_SERVER_PORT);
-            LOG.info("opened socket to game server " + GAME_SERVER + ":" + GAME_SERVER_PORT);
-
+            String loginHost = System.getProperty("charlie.server.login");
+            
+            String[] params = loginHost.split(":");
+            String loginAddr = params[0];
+            int loginPort = Integer.parseInt(params[1]);
+            
+            Socket client = new Socket(loginAddr, loginPort);
+            
             OutputStream os = client.getOutputStream();
 
             ObjectOutputStream oos = new ObjectOutputStream(os);
-
             oos.writeObject(new Login("abc", "def"));
+            oos.flush();
+            LOG.info("sent login request");
+            
+            InputStream is = client.getInputStream();
+            
+            ObjectInputStream ois = new ObjectInputStream(is);
 
-            Ticket ticket;
-            try (InputStream is = client.getInputStream(); ObjectInputStream ois = new ObjectInputStream(is)) {
-                ticket = (Ticket) ois.readObject();
-            }
+            Ticket ticket = (Ticket) ois.readObject();
+            LOG.info("received ticket");
 
-            // Get the house actor
-            Address addr = ticket.getHouse();
-
-            LOG.info("got house addr = " + addr);
-
-            clientTopology = new ClientTopology(GAME_SERVER, HOUSE_PORT, 5, TimeUnit.SECONDS, 3, TimeUnit.SECONDS);
-
-            house = clientTopology.getActor(addr);
-            LOG.info("got house actor");
-
-            // Connect the courier to the dealer's surrogate on the server
+            // Start courier to receive messages from dealer via RealPlayer
             courier = new Courier(panel);
+            courier.start();
 
-            serverTopology = new ServerTopology(MY_HOST, MY_PORT);
+            // Let house know we've arrived
+            acknowledge(ticket);
 
-            Address me = serverTopology.spawnActor(COURIER_ACTOR, courier);
-            LOG.info("spawned my addr = " + me);
-
-            courier.setMyAddress(me);
-
-            // Sending this message causes the house to spawn a ghost
-            // which if all goes well sends us a connect message which we wait for.
-            house.send(new Arrival(ticket, me));
-            LOG.info("sent ARRIVAL to " + house);
-
-            // Wait for the acknowledgement from the surrogate
+            // Wait for READY from from dealer 
             synchronized (panel) {
                 try {
                     panel.wait(5000);
@@ -299,6 +279,33 @@ public class GameFrame extends javax.swing.JFrame {
 
             return false;
         }
+    }
+    
+    protected void acknowledge(Ticket ticket) {
+        try {
+            String house = System.getProperty("charlie.server.house");
+            
+            String houseAddr = house.split(":")[0];
+            int housePort = Integer.parseInt(house.split(":")[1]);
+            
+            Socket socket = new Socket(houseAddr, housePort);
+            
+            OutputStream os = socket.getOutputStream();
+            
+            ObjectOutputStream oos = new ObjectOutputStream(os);
+            
+            int courierPort = Integer.parseInt(System.getProperty("charlie.client.courier").split(":")[1]);
+            
+            oos.writeObject(new Arrival(ticket,InetAddress.getLocalHost(),courierPort));
+            
+            oos.flush();
+            
+            socket.close();
+            
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(GameFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }
     
     /**
@@ -373,13 +380,7 @@ public class GameFrame extends javax.swing.JFrame {
      * Recovers in event we fail catastrophically.
      */
     protected void failOver() {
-        if (serverTopology != null) {
-            serverTopology.shutdown();
-        }
 
-        if (clientTopology != null) {
-            clientTopology.shutdown();
-        }
     }
 
     /**

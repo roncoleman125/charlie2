@@ -22,15 +22,15 @@
  */
 package charlie.server;
 
-import com.googlecode.actorom.Address;
 import java.io.Serializable;
+import java.net.InetAddress;
 
 /**
  * This class implements a ticket which the user receive upon successful login.
  * @author Ron Coleman
  */
 public class Ticket implements Serializable {
-    protected final Address house;
+//    protected final InetAddress house;
     protected final long number;
     protected double bankroll;
 
@@ -40,8 +40,8 @@ public class Ticket implements Serializable {
      * @param number Serial number
      * @param bankroll Bankroll
      */
-    public Ticket(Address house, long number,double bankroll) {
-        this.house = house;
+    public Ticket(InetAddress house, long number,double bankroll) {
+//        this.house = house;
         this.number = number;
         this.bankroll = bankroll;
     }
@@ -50,9 +50,9 @@ public class Ticket implements Serializable {
      * Gets the house actor address.
      * @return Actor address
      */
-    public Address getHouse() {
-        return house;
-    }
+//    public InetAddress getHouse() {
+//        return house;
+//    }
 
     /**
      * Gets the serial number.

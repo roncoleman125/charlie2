@@ -23,7 +23,7 @@
 package charlie.message.view.to;
 
 import charlie.message.Message;
-import com.googlecode.actorom.Address;
+import java.net.InetAddress;
 
 /**
  * This message sent by IPlayer to connect to its courier.
@@ -35,7 +35,7 @@ public class Ready extends Message {
      * Constructor
      * @param address IPlayer address
      */
-    public Ready(Address address) {
+    public Ready(InetAddress address) {
         super(address);
     }    
 }

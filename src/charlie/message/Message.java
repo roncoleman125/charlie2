@@ -22,8 +22,8 @@
  */
 package charlie.message;
 
-import com.googlecode.actorom.Address;
 import java.io.Serializable;
+import java.net.InetAddress;
 
 /**
  * This class implements an abstract message for actors.
@@ -33,7 +33,7 @@ abstract public class Message implements Serializable {
     protected Long serialno = 0L;
     protected static Long counter = 0L;
     protected final static String monitor = "YUMMY";
-    protected Address source;
+    protected InetAddress source;
     protected final Long stamp = System.currentTimeMillis();;
 
     /**
@@ -52,7 +52,7 @@ abstract public class Message implements Serializable {
      * Constructor
      * @param source Actor source address.
      */
-    public Message(Address source) {
+    public Message(InetAddress source) {
         this.source = source;
         
         synchronized(monitor) {
@@ -81,7 +81,7 @@ abstract public class Message implements Serializable {
      * Gets the message source address.
      * @return Address
      */
-    public Address getSource() {
+    public InetAddress getSource() {
         return source;
     }
     
@@ -89,7 +89,7 @@ abstract public class Message implements Serializable {
      * Sets the message source address.
      * @param source Address
      */
-    public void setSource(Address source) {
+    public void setSource(InetAddress source) {
         this.source = source;
     }
 

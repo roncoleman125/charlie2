@@ -28,6 +28,7 @@ import charlie.message.view.to.Ready;
 import charlie.plugin.IUi;
 import charlie.card.Hid;
 import charlie.dealer.Seat;
+import charlie.message.Message;
 import charlie.message.view.from.Bet;
 import charlie.message.view.from.DoubleDown;
 import charlie.message.view.from.Hit;
@@ -47,34 +48,65 @@ import charlie.message.view.to.Shuffle;
 import charlie.message.view.to.SplitToView;
 import charlie.message.view.to.Win;
 import charlie.util.Constant;
-import com.googlecode.actorom.Actor;
-import com.googlecode.actorom.Address;
-import com.googlecode.actorom.annotation.OnMessage;
-import com.googlecode.actorom.remote.ClientTopology;
-import java.util.concurrent.TimeUnit;
+import charlie.util.Helper;
+import java.net.InetAddress;
 import org.apache.log4j.Logger;
 
 /**
  * This class implements the courier actor between the client and server.
  * @author Ron Coleman
  */
-public class Courier {  
+public class Courier extends LastActor implements Listener {  
     private final Logger LOG = Logger.getLogger(Courier.class);
 
     private final IUi ui;
-    protected Actor player;
-    protected ClientTopology topology;
-    protected Address myAddress;
+    protected InetAddress myAddress;
     protected HoleCard holeCard;
+    protected LastActor player;
     
     /**
      * Constructor
      * @param ui User interface
      */
     public Courier(IUi ui) {
+        super(System.getProperty("charlie.client.courier"), System.getProperty("charlie.server.realplayer"));
+
         this.ui = ui;
         
+        init();
+    }
+    
+    protected final void init() {
         ui.setCourier(this);
+        
+        this.setListener(this);
+    }
+    
+    @Override
+    public void received(Message msg) {
+        if(msg instanceof Outcome)
+            onReceive((Outcome) msg);
+        
+        else if(msg instanceof SplitToView)
+            onReceive((SplitToView) msg);
+        
+        else if(msg instanceof Ready)
+            onReceive((Ready) msg);
+        
+        else if(msg instanceof GameStart)
+            onReceive((GameStart) msg);
+        
+        else if(msg instanceof GameOver)
+            onReceive((GameOver)msg);
+        
+        else if(msg instanceof Deal)
+            onReceive((Deal)msg);
+        
+        else if(msg instanceof Play)
+            onReceive((Play)msg);
+        
+        else
+            LOG.error("dropping inbound message = "+msg.getClass().getSimpleName());
     }
     
     /**
@@ -82,7 +114,7 @@ public class Courier {
      * @param hid Hand id
      */
     public void stay(Hid hid) {
-        player.send(new Stay(hid));
+        send(new Stay(hid));
     }
     
     /**
@@ -90,7 +122,7 @@ public class Courier {
      * @param hid Hand id
      */
     public void hit(Hid hid) {
-        player.send(new Hit(hid));
+        send(new Hit(hid));
     }
     
     /**
@@ -98,7 +130,7 @@ public class Courier {
      * @param hid Hand id
      */
     public void dubble(Hid hid) {
-        player.send(new DoubleDown(hid));
+        send(new DoubleDown(hid));
     }    
     
     /**
@@ -110,7 +142,7 @@ public class Courier {
     public Hid bet(Integer amt, Integer sideAmt) {
         Hid hid = new Hid(Seat.YOU,amt,sideAmt);
         
-        player.send(new Bet(hid));
+        send(new Bet(hid));
         
         return hid;
     }
@@ -121,14 +153,13 @@ public class Courier {
      * @param hid The hand ID we are going to split (original hand)
      */
     public void split(Hid hid){
-        player.send(new SplitFromView(hid));
+        send(new SplitFromView(hid));
     }
     
     /**
      * Receives a split notification from the dealer with the new HID
      * @param split
      */
-    @OnMessage(type = SplitToView.class)
     public void onReceive(SplitToView split){
         LOG.info("received split outcome from dealer");
         ui.split(split.getNewHid(), split.getOrigHid());
@@ -138,7 +169,6 @@ public class Courier {
      * Receives a game outcome from dealer surrogate actor on server.
      * @param outcome Game outcome
      */
-    @OnMessage(type = Outcome.class)
     public void onReceive(Outcome outcome) {
         LOG.info("received outcome = "+outcome);
         
@@ -164,19 +194,9 @@ public class Courier {
      * Receives a connected message sent by the house actor.
      * @param msg Ready message
      */
-    @OnMessage(type = Ready.class)
     public void onReceive(Ready msg) {
-        Address addr = msg.getSource();
-        LOG.info("received "+msg+" from "+addr);
+        LOG.info("received "+msg+" from "+msg.getSource());
         
-        this.topology =
-                new ClientTopology(addr.getHost(), addr.getPort(), 5, TimeUnit.SECONDS, 3, TimeUnit.SECONDS);
-        
-        this.player = topology.getActor(msg.getSource());
-        
-        if(!player.isActive())
-            return;
-
         synchronized(ui) {
             ui.notify();
         }
@@ -186,7 +206,6 @@ public class Courier {
      * Receives game starting message from dealer surrogate actor on server.
      * @param starting Game start which contains hand ids and shoe size
      */
-    @OnMessage(type = GameStart.class)
     public void onReceive(GameStart starting) { 
         LOG.info("receive starting shoe size = "+starting.shoeSize());
         
@@ -200,7 +219,6 @@ public class Courier {
      * Receives a card deal from the dealer surrogate actor on the server.
      * @param deal Deal containing card
      */
-    @OnMessage(type = Deal.class)
     public void onReceive(Deal deal) {      
         Hid hid = deal.getHid();
         
@@ -220,7 +238,6 @@ public class Courier {
      * Receives the play turn.
      * @param turn Turn
      */
-    @OnMessage(type = Play.class)
     public void onReceive(Play turn) {
         LOG.info("got turn = "+turn.getHid());
         
@@ -232,7 +249,6 @@ public class Courier {
      * Receives the game over signal from the dealer surrogate on the server.
      * @param ending Game over
      */
-    @OnMessage(type = GameOver.class)
     public void onReceive(GameOver ending) {
         LOG.info("received ending shoe size = "+ending.getShoeSize());
         ui.ending(ending.getShoeSize());
@@ -242,7 +258,6 @@ public class Courier {
      * Receives the shuffling signal from the dealer surrogate on the server.
      * @param shuffle Shuffle
      */
-    @OnMessage(type = Shuffle.class)
     public void onReceive(Shuffle shuffle) {
         LOG.info("received shuffle");
         ui.shuffling();
@@ -252,7 +267,6 @@ public class Courier {
      * Receives a string message typically for testing purposes.
      * @param s String
      */
-    @OnMessage(type = String.class)
     public void onReceive(String s) {
         System.out.println(s);
     }
@@ -261,7 +275,7 @@ public class Courier {
      * Sets my address.
      * @param mine My address
      */
-    public void setMyAddress(Address mine) {
+    public void setMyAddress(InetAddress mine) {
         this.myAddress = mine;
     }
 }

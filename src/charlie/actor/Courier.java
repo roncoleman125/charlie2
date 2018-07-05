@@ -22,6 +22,8 @@
  */
 package charlie.actor;
 
+import charlie.actor.last.Listener;
+import charlie.actor.last.Actor;
 import charlie.card.Card;
 import charlie.card.HoleCard;
 import charlie.message.view.to.Ready;
@@ -48,21 +50,17 @@ import charlie.message.view.to.Shuffle;
 import charlie.message.view.to.SplitToView;
 import charlie.message.view.to.Win;
 import charlie.util.Constant;
-import charlie.util.Helper;
 import java.net.InetAddress;
-import org.apache.log4j.Logger;
 
 /**
  * This class implements the courier actor between the client and server.
  * @author Ron Coleman
  */
-public class Courier extends LastActor implements Listener {  
-    private final Logger LOG = Logger.getLogger(Courier.class);
-
+public class Courier extends Actor implements Listener {  
     private final IUi ui;
     protected InetAddress myAddress;
     protected HoleCard holeCard;
-    protected LastActor player;
+    protected Actor player;
     
     /**
      * Constructor
@@ -76,12 +74,19 @@ public class Courier extends LastActor implements Listener {
         init();
     }
     
+    /**
+     * Completes the initialization.
+     */
     protected final void init() {
         ui.setCourier(this);
         
         this.setListener(this);
     }
     
+    /**
+     * Dispatches received messages.
+     * @param msg Message
+     */
     @Override
     public void received(Message msg) {
         if(msg instanceof Outcome)

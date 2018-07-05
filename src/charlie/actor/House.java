@@ -22,6 +22,8 @@
  */
 package charlie.actor;
 
+import charlie.actor.last.Listener;
+import charlie.actor.last.Actor;
 import charlie.card.Hid;
 import charlie.dealer.Dealer;
 import charlie.message.Message;
@@ -39,7 +41,7 @@ import org.apache.log4j.Logger;
  * This class implements the house.
  * @author Ron Coleman
  */
-public class House extends LastActor implements Listener {
+public class House extends Actor implements Listener {
     private final Logger LOG = Logger.getLogger(House.class);
     private final String PLAYER_ACTOR = "PLAYER-";
     protected List<RealPlayer> players = new ArrayList<>();
@@ -68,9 +70,9 @@ public class House extends LastActor implements Listener {
      * Receives an arrival by a client.
      * At login the user gets a ticket from the server which the
      * house uses to validate. If the ticket is valid, the house
-     * allocates a dealer and spawns a myAddress actor. The dealer
-     * then waits for contact from a courier through the myAddress.
-     * In other words, the whole design is largely passive in nature.
+     * allocates a dealer and spawns a real player to service the interface
+     * between the dealer and a "real" player. The dealer then waits for contact
+     * via a bet message through real player.
      * @param arrival Arrival message
      */
     public void onReceive(Arrival arrival) {
@@ -83,10 +85,12 @@ public class House extends LastActor implements Listener {
 
         LOG.info("validated ticket = " + ticket);
         
-        InetAddress courierAddress = arrival.getSource();
-        LOG.info("arrival from " + courierAddress);
+        // Build address to courier to which real player is connected.
+        InetAddress addr = arrival.getSource();
+        LOG.info("arrival from " + addr);
 
-        String courier = courierAddress.getHostAddress() + ":" + arrival.getPort();
+        String courier = addr.getHostAddress() + ":" + arrival.getPort();
+        
         // Get a dealer for this player
         // Note: if we were allocating dealers from a pool, this is the place
         // to implement that logic. For now we'll just spawn dealers without
@@ -99,6 +103,7 @@ public class House extends LastActor implements Listener {
         
         player.start();
 
+        // Put this player in the repository of player accounts.
         accounts.put(player, ticket);
 
         synchronized (this) {
@@ -107,7 +112,7 @@ public class House extends LastActor implements Listener {
             players.add(player);
         }
 
-        // Inform player we're ready
+        // Inform courier that login is complete and we're ready to play
         player.ready();
     }
     

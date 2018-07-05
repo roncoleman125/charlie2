@@ -22,6 +22,8 @@
  */
 package charlie.actor;
 
+import charlie.actor.last.Listener;
+import charlie.actor.last.Actor;
 import charlie.card.Card;
 import charlie.message.view.from.Bet;
 import charlie.message.view.from.Hit;
@@ -51,14 +53,12 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.logging.Level;
-import org.apache.log4j.Logger;
 
 /**
  * This class implements the game interface to a "real" player.
  * @author Ron Coleman
  */
-public class RealPlayer extends LastActor implements Listener, IPlayer {
-    private final Logger LOG = Logger.getLogger(RealPlayer.class);
+public class RealPlayer extends Actor implements Listener, IPlayer {
     protected InetAddress myAddress;
     protected Dealer dealer;
     protected Hand playing;
@@ -85,6 +85,10 @@ public class RealPlayer extends LastActor implements Listener, IPlayer {
         send(new Ready(myAddress));
     }
 
+    /**
+     * Dispatches received messages to dealer.
+     * @param msg Message
+     */
     @Override
     public void received(Message msg) {
         if(msg instanceof Hit)
@@ -103,7 +107,7 @@ public class RealPlayer extends LastActor implements Listener, IPlayer {
             onReceive((Bet) msg);
         }
         else
-            LOG.error(this.getClass().getSimpleName()+" dropped message: "+msg.getClass().getSimpleName());
+            error("dropped message: "+msg.getClass().getSimpleName());
     }
     
     /**
@@ -111,7 +115,7 @@ public class RealPlayer extends LastActor implements Listener, IPlayer {
      * @param bet Bet
      */
     public void onReceive(Bet bet) {     
-        LOG.info(this.getClass().getSimpleName()+" received bet = "+bet.getHid().getAmt());
+        log("received bet = "+bet.getHid().getAmt());
         
         dealer.bet(this, bet.getHid());
     }
@@ -121,7 +125,7 @@ public class RealPlayer extends LastActor implements Listener, IPlayer {
      * @param request Request
      */
     public void onReceive(Request request) {
-        LOG.info(this.getClass().getSimpleName()+" received request = "+request.getClass().getSimpleName());
+        log("received request = "+request.getClass().getSimpleName());
         Hid hand = request.getHid();
         
         if(request instanceof Hit)
@@ -138,7 +142,7 @@ public class RealPlayer extends LastActor implements Listener, IPlayer {
         }
         
         else
-            LOG.error(this.getClass().getSimpleName()+" received unknown request: "+request+" for hand = "+hand);
+            error("received unknown request: "+request+" for hand = "+hand);
     } 
 
     /**

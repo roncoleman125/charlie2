@@ -24,7 +24,8 @@ package charlie;
 
 import charlie.card.Hid;
 import charlie.actor.Courier;
-import charlie.actor.Boot;
+import charlie.actor.last.OutboundActor;
+
 import charlie.audio.SoundFactory;
 import charlie.card.Card;
 import charlie.card.Hand;
@@ -60,8 +61,7 @@ import org.apache.log4j.Logger;
  */
 public class GameFrame extends javax.swing.JFrame {
     static {
-        Properties props = System.getProperties();
-        props.setProperty("LOGFILE","log-client.out");
+        System.getProperties().setProperty("LOGFILE","log-client.out");
     }
     protected final Logger LOG = Logger.getLogger(GameFrame.class);
     protected final Integer MY_PORT = 2345;
@@ -250,7 +250,7 @@ public class GameFrame extends javax.swing.JFrame {
             courier = new Courier(panel);
             courier.start();
 
-            // Let house know we've arrived
+            // Let house know we're here
             acknowledge(ticket);
 
             // Wait for READY from from dealer 
@@ -285,22 +285,28 @@ public class GameFrame extends javax.swing.JFrame {
         try {
             String house = System.getProperty("charlie.server.house");
             
-            String houseAddr = house.split(":")[0];
-            int housePort = Integer.parseInt(house.split(":")[1]);
-            
-            Socket socket = new Socket(houseAddr, housePort);
-            
-            OutputStream os = socket.getOutputStream();
-            
-            ObjectOutputStream oos = new ObjectOutputStream(os);
+            OutboundActor actor = new OutboundActor(house);
             
             int courierPort = Integer.parseInt(System.getProperty("charlie.client.courier").split(":")[1]);
             
-            oos.writeObject(new Arrival(ticket,InetAddress.getLocalHost(),courierPort));
-            
-            oos.flush();
-            
-            socket.close();
+            actor.send(new Arrival(ticket,InetAddress.getLocalHost(),courierPort));
+
+//            String houseAddr = house.split(":")[0];
+//            int housePort = Integer.parseInt(house.split(":")[1]);
+//            
+//            Socket socket = new Socket(houseAddr, housePort);
+//            
+//            OutputStream os = socket.getOutputStream();
+//            
+//            ObjectOutputStream oos = new ObjectOutputStream(os);
+//            
+//            int courierPort = Integer.parseInt(System.getProperty("charlie.client.courier").split(":")[1]);
+//            
+//            oos.writeObject(new Arrival(ticket,InetAddress.getLocalHost(),courierPort));
+//            
+//            oos.flush();
+//            
+//            socket.close();
             
         } catch (IOException ex) {
             java.util.logging.Logger.getLogger(GameFrame.class.getName()).log(Level.SEVERE, null, ex);

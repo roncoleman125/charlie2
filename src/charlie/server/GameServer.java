@@ -48,8 +48,7 @@ import org.apache.log4j.Logger;
 public class GameServer {
     static {
         // For properties see http://www.slf4j.org/api/org/slf4j/impl/SimpleLogger.html
-        Properties _props = System.getProperties();
-        _props.setProperty("LOGFILE","log-server.out");
+        System.getProperties().setProperty("LOGFILE","log-server.out");
     }
     protected static  Logger LOG = Logger.getLogger(GameServer.class);
     protected final static String HOUSE_ACTOR = "HOUSE";

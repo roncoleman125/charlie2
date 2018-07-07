@@ -20,20 +20,44 @@
  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package charlie.actor.last;
+package charlie.actor;
+
+import charlie.actor.last.Actor;
+import charlie.message.view.from.Arrival;
+import charlie.server.Ticket;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
- * This actor only transmits messages outbound.
+ * Implements actor to send arrival message to house.
  * @author Ron.Coleman
  */
-public class OutboundActor extends Actor {
+public class Arriver extends Actor {
+
+    private final Ticket ticket;
     
     /**
      * Constructor
-     * @param remoteHost Remote host
+     * Initializes actor with remote host with "charlie.server.house" property
+     * in charlie.props.
+     * @param ticket Ticket to conduct business
      */
-    public OutboundActor(String remoteHost) {
-        super("",remoteHost);
+    public Arriver(Ticket ticket) {
+        super("",System.getProperty("charlie.server.house"));
+        
+        this.ticket = ticket;
+    }
+    
+    public void send() {
+        try {
+            int courierPort = Integer.parseInt(System.getProperty("charlie.client.courier").split(":")[1]);
+            
+            super.send(new Arrival(ticket,InetAddress.getLocalHost(),courierPort));
+            info("sent arrival message");
+            
+        } catch (UnknownHostException ex) {
+            error("got exception "+ex);
+        }
     }
     
     /**

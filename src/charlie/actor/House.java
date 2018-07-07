@@ -137,7 +137,7 @@ public class House extends Actor implements Listener {
      * @return True if the ticket is valid, false otherwise.
      */
     protected boolean valid(Ticket ticket) {
-        List<Ticket> logins = server.getLogins();
+        List<Ticket> logins = server.getTickets();
         
         for(int i=0; i < logins.size(); i++) {
             if(logins.get(i).equals(ticket))

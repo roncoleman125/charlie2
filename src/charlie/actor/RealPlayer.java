@@ -115,7 +115,7 @@ public class RealPlayer extends Actor implements Listener, IPlayer {
      * @param bet Bet
      */
     public void onReceive(Bet bet) {     
-        log("received bet = "+bet.getHid().getAmt());
+        info("received bet = "+bet.getHid().getAmt());
         
         dealer.bet(this, bet.getHid());
     }
@@ -125,7 +125,7 @@ public class RealPlayer extends Actor implements Listener, IPlayer {
      * @param request Request
      */
     public void onReceive(Request request) {
-        log("received request = "+request.getClass().getSimpleName());
+        info("received request = "+request.getClass().getSimpleName());
         Hid hand = request.getHid();
         
         if(request instanceof Hit)

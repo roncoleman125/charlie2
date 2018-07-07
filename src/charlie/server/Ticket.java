@@ -23,36 +23,40 @@
 package charlie.server;
 
 import java.io.Serializable;
-import java.net.InetAddress;
 
 /**
  * This class implements a ticket which the user receive upon successful login.
  * @author Ron Coleman
  */
 public class Ticket implements Serializable {
-//    protected final InetAddress house;
     protected final long number;
     protected double bankroll;
+    protected int usage = 0;
 
     /**
      * Constructor
-     * @param house House actor address
      * @param number Serial number
      * @param bankroll Bankroll
      */
-    public Ticket(InetAddress house, long number,double bankroll) {
-//        this.house = house;
+    public Ticket(long number,double bankroll) {
         this.number = number;
         this.bankroll = bankroll;
     }
 
     /**
-     * Gets the house actor address.
-     * @return Actor address
+     * Increments the use count.
      */
-//    public InetAddress getHouse() {
-//        return house;
-//    }
+    public void use() {
+        usage++;
+    }
+    
+    /**
+     * Gets the usage count.
+     * @return Use count
+     */
+    public int getUsage() {
+        return usage;
+    }
 
     /**
      * Gets the serial number.

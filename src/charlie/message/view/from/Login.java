@@ -20,15 +20,15 @@
  OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package charlie.server;
+package charlie.message.view.from;
 
-import java.io.Serializable;
+import charlie.message.Message;
 
 /**
  * This class contains login credentials.
  * @author Ron Coleman
  */
-public class Login implements Serializable {
+public class Login extends Message {
     private String logname;
     private String password;
     

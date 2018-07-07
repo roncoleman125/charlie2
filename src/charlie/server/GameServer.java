@@ -23,21 +23,13 @@
 package charlie.server;
 
 import charlie.actor.House;
-import charlie.util.Constant;
+import charlie.actor.ServerAuthenticator;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-import java.util.logging.Level;
 import org.apache.log4j.Logger;
 
 
@@ -55,7 +47,7 @@ public class GameServer {
     protected final static Random ran = new Random(0);
     protected final static Integer TOPOLOGY_PORT = 1234;
     protected final static String HOST = "127.0.0.1";
-    protected final List<Ticket> logins = new ArrayList<>();
+    protected final List<Ticket> tickets = new ArrayList<>();
     
     /**
      * This method is the main entry point for the server.
@@ -65,12 +57,9 @@ public class GameServer {
         new GameServer().go();
     }
     
-    /**
-     * Starts the server processing loop
-     */
     protected void go() {
         try {
-            LOG.info("game server started...");
+            LOG.info("game server started");
             
             // Start the actor server
             Properties props = System.getProperties();
@@ -81,147 +70,28 @@ public class GameServer {
             House house = new House(this);
             house.setListener(house);
             house.start();
-            LOG.info("house started...");
-
-            InetAddress houseAddr = house.getMyAddress();
-
-            // Enter the login-loop
-            
-            String loginHost = props.getProperty("charlie.server.login");
-            int loginPort = Integer.parseInt(loginHost.split(":")[1]);
-            
-            ServerSocket serverSocket = new ServerSocket(loginPort);
-            
+            LOG.info("house started");    
+  
+            // Enter the authentication loop
             while(true) {
-                LOG.info(this.getClass().getSimpleName()+" waiting for login connection on port "+loginPort);
-                Socket clientSocket = serverSocket.accept();
+                // If the authentication succeeds, there'll be an extra ticket in repository
+                int sz = tickets.size();
                 
-                LOG.info("processing login from "+clientSocket.getInetAddress());
-                process2(clientSocket, houseAddr);
+                new ServerAuthenticator(this).receive();
+                
+                if(tickets.size() == sz)
+                    LOG.error("client authentication failed");
             }
         } catch (IOException | NumberFormatException ex) {
             LOG.error("exception thrown: "+ex);
-        }
+        }        
     }
-
-    private void process2(final Socket clientSocket, final InetAddress house) {
-        try {
-            InputStream is = clientSocket.getInputStream();
-
-            ObjectInputStream ois = new ObjectInputStream(is);
-
-            Login login = (Login) ois.readObject();
-            LOG.info("got login...");
-
-            Ticket ticket = validate(house, login);
-
-            if (ticket != null) {
-                LOG.info("validated login...");
-                
-                logins.add(ticket);
-                LOG.info("added ticket "+ticket+" to login databzse");                
-
-                OutputStream os = clientSocket.getOutputStream();
-                LOG.info("got output stream");
-
-                ObjectOutputStream oos = new ObjectOutputStream(os);
-                LOG.info("got object output stream");
-
-                oos.writeObject(ticket);
-                LOG.info("wrote ticket to object output stream");
-
-                oos.flush();
-                LOG.info("sent ticket to client");
-
-                try {
-                    Thread.sleep(250);
-                } catch (InterruptedException ex) {
-                    java.util.logging.Logger.getLogger(GameServer.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        } catch (IOException | ClassNotFoundException ex) {
-            LOG.error("exception thrown: " + ex);
-        }
-    }
-    
-    /**
-     * Processes a login request
-     * @param clientSocket
-     * @param house House
-     */
-//    private void process(final Socket clientSocket, final InetAddress house) {
-//        Runnable thread = new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    InputStream is = clientSocket.getInputStream();
-//                    
-//                    ObjectInputStream ois = new ObjectInputStream(is);
-//                    
-//                    Login login = (Login) ois.readObject();
-//                    LOG.info("got login...");
-//
-//                    Ticket ticket = validate(house, login);
-//
-//                    if (ticket != null) {
-//                        LOG.info("validated login...");
-//                        
-//                        OutputStream os = clientSocket.getOutputStream();
-//                        LOG.info("got output stream...");
-//                        
-//                        ObjectOutputStream oos = new ObjectOutputStream(os);
-//                        LOG.info("got object output stream...");
-//                        
-//                        oos.writeObject(ticket);
-//                        LOG.info("wrote ticket to object output stream...");
-//                        
-//                        oos.flush();
-//                        LOG.info("flushed the object output stream...");
-//                        
-//                        LOG.info("sent ticket to client...");
-//
-//                        logins.add(ticket);
-//                    }
-//
-////                        ois.close();
-////                        is.close();
-//
-//
-////                    if (oos != null) {
-////                        oos.close();
-////                    }
-////
-////                    if (os != null) {
-////                        os.close();
-////                    }
-//                } catch (IOException | ClassNotFoundException ex) {
-//                    LOG.error("exception thrown: "+ex);
-//                }
-//            }
-//        };
-//
-//        new Thread(thread).start();
-//    }
 
     /**
      * Gets the logins by ticket
      * @return Tickets
      */
-    public List<Ticket> getLogins() {
-        return logins;
-    }
-    
-    /**
-     * Validates a login
-     * @param house House actor address
-     * @param login Login credentials to authenticate
-     * @return Ticket or null if login fails
-     */
-    private Ticket validate(InetAddress house, Login login) {
-        if (login.getLogname() != null && login.getPassword() != null) {
-            return new Ticket(house,ran.nextLong(),Constant.PLAYER_BANKROLL);
-        }
-
-        return null;
+    public List<Ticket> getTickets() {
+        return tickets;
     }
 }

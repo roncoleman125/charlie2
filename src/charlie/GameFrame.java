@@ -22,33 +22,24 @@
  */
 package charlie;
 
+import charlie.actor.ClientAuthenticator;
 import charlie.card.Hid;
 import charlie.actor.Courier;
-import charlie.actor.last.OutboundActor;
-
+import charlie.actor.Arriver;
 import charlie.audio.SoundFactory;
 import charlie.card.Card;
 import charlie.card.Hand;
 import charlie.dealer.Seat;
-import charlie.message.view.from.Arrival;
 import charlie.util.Play;
 import charlie.plugin.IAdvisor;
-import charlie.server.Login;
 import charlie.server.Ticket;
 import charlie.view.ATable;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 //import org.slf4j.Logger;
@@ -222,96 +213,41 @@ public class GameFrame extends javax.swing.JFrame {
      * @return True if connected, false if connect attempt fails.
      */
     private boolean connect(ATable panel) {
-        try {
-            // Login to the server
-            String loginHost = System.getProperty("charlie.server.login");
-            
-            String[] params = loginHost.split(":");
-            String loginAddr = params[0];
-            int loginPort = Integer.parseInt(params[1]);
-            
-            Socket client = new Socket(loginAddr, loginPort);
-            
-            OutputStream os = client.getOutputStream();
-
-            ObjectOutputStream oos = new ObjectOutputStream(os);
-            oos.writeObject(new Login("abc", "def"));
-            oos.flush();
-            LOG.info("sent login request");
-            
-            InputStream is = client.getInputStream();
-            
-            ObjectInputStream ois = new ObjectInputStream(is);
-
-            Ticket ticket = (Ticket) ois.readObject();
-            LOG.info("received ticket");
-
-            // Start courier to receive messages from dealer via RealPlayer
-            courier = new Courier(panel);
-            courier.start();
-
-            // Let house know we're here
-            acknowledge(ticket);
-
-            // Wait for READY from from dealer 
-            synchronized (panel) {
-                try {
-                    panel.wait(5000);
-
-                    Double bankroll = ticket.getBankroll();
-
-                    panel.setBankroll(bankroll);
-
-                    LOG.info("connected to courier bankroll = " + bankroll);
-
-                } catch (InterruptedException ex) {
-                    LOG.info("failed to connect to courier: " + ex);
-
-                    failOver();
-
-                    return false;
-                }
-            }
-
-            return true;
-        } catch (IOException | ClassNotFoundException e) {
-            LOG.info("failed to connect to server: " + e);
-
-            return false;
-        }
-    }
-    
-    protected void acknowledge(Ticket ticket) {
-        try {
-            String house = System.getProperty("charlie.server.house");
-            
-            OutboundActor actor = new OutboundActor(house);
-            
-            int courierPort = Integer.parseInt(System.getProperty("charlie.client.courier").split(":")[1]);
-            
-            actor.send(new Arrival(ticket,InetAddress.getLocalHost(),courierPort));
-
-//            String houseAddr = house.split(":")[0];
-//            int housePort = Integer.parseInt(house.split(":")[1]);
-//            
-//            Socket socket = new Socket(houseAddr, housePort);
-//            
-//            OutputStream os = socket.getOutputStream();
-//            
-//            ObjectOutputStream oos = new ObjectOutputStream(os);
-//            
-//            int courierPort = Integer.parseInt(System.getProperty("charlie.client.courier").split(":")[1]);
-//            
-//            oos.writeObject(new Arrival(ticket,InetAddress.getLocalHost(),courierPort));
-//            
-//            oos.flush();
-//            
-//            socket.close();
-            
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(GameFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        Ticket ticket = new ClientAuthenticator().send("abc", "def");
         
+        if(ticket == null)
+            return false;
+        
+        LOG.info("login successful");
+        
+        // Start courier to receive messages from dealer --
+        // NOTE: we must start courier before sending arrival message otherwise
+        // ready message will come before any actor can receive it.
+        courier = new Courier(panel);
+        courier.start();
+        
+        // Let house know we've arrived then wait for READY to begin playing
+        new Arriver(ticket).send(); 
+
+        synchronized (panel) {
+            try {
+                panel.wait(5000);
+
+                Double bankroll = ticket.getBankroll();
+
+                panel.setBankroll(bankroll);
+
+                LOG.info("connected to courier with bankroll = " + bankroll);
+
+            } catch (InterruptedException ex) {
+                LOG.info("failed to connect to server: " + ex);
+
+                failOver();
+
+                return false;
+            }
+        }
+        return true;
     }
     
     /**

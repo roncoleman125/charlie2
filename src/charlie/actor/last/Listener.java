@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2014 Ron Coleman
+ Copyright (c) Ron Coleman
 
  Permission is hereby granted, free of charge, to any person obtaining
  a copy of this software and associated documentation files (the
@@ -25,7 +25,7 @@ package charlie.actor.last;
 import charlie.message.Message;
 
 /**
- * Specifies callback when actor receives a message.
+ * Specifies callback when actor receives a message asynchronously.
  * @author Ron.Coleman
  */
 public interface Listener {

@@ -48,10 +48,10 @@ abstract public class Actor implements Runnable {
     protected ServerSocket serverSocket;
     
     /** This host when actor runs */
-    private final String myHost;
+    protected final String myHost;
     
     /** Remote host where message are sent to */
-    private String remoteHost;
+    protected String remoteHost;
     
     /**
      * Constructor for full-duplex actors
@@ -124,19 +124,19 @@ abstract public class Actor implements Runnable {
             serverSocket = new ServerSocket(portno);
             
             while(true) {
-                log("waiting for connection on port "+portno);
+                info("waiting for connection on port "+portno);
                 try (Socket clientSocket = serverSocket.accept()) {
-                    log("accepted connection on port "+portno);
+                    info("accepted connection on port "+portno);
                     
                     InputStream is = clientSocket.getInputStream();
                     
                     ObjectInputStream ois = new ObjectInputStream(is);
                     
                     Message msg = (Message) ois.readObject();
-                    log("received message "+msg.getClass().getSimpleName());
+                    info("received message "+msg.getClass().getSimpleName());
                     
                     if(listener != null) {
-                        log("invoking listener for "+msg.getClass().getSimpleName());
+                        info("invoking listener for "+msg.getClass().getSimpleName());
                         listener.received(msg);
                     }
                     else
@@ -156,7 +156,7 @@ abstract public class Actor implements Runnable {
      */
     public void send(Message msg) {
         try {
-            log("sending "+msg.getClass().getSimpleName()+" to "+remoteHost);
+            info("sending "+msg.getClass().getSimpleName()+" to "+remoteHost);
             String[] params = remoteHost.split(":");
 
             String addr = params[0];
@@ -171,7 +171,7 @@ abstract public class Actor implements Runnable {
                 oos.flush();
             }
             
-            log("sent successfully "+msg.getClass().getSimpleName()+" to "+remoteHost);
+            info("sent successfully "+msg.getClass().getSimpleName()+" to "+remoteHost);
         } catch (IOException ex) {
             error(ex+"");
         }
@@ -181,7 +181,7 @@ abstract public class Actor implements Runnable {
      * Logs diagnostics conveniently.
      * @param text Text of message.
      */
-    protected void log(String text) {
+    protected void info(String text) {
         LOG.info(this.getClass().getSimpleName()+" "+text);
     }
     

@@ -58,10 +58,25 @@ public class House extends Actor implements Listener {
         this.server = server;
     }
     
+    /**
+     * House does not send messages but delegates it to RealPlayer.
+     * @param msg Message
+     */
+    @Override
+    public void send(Message msg) {
+        error("bad message "+msg+" not sent");
+    }
+    
+    /**
+     * Receives messages.
+     * @param msg Message
+     */
     @Override
     public void received(Message msg) {
-        if(!(msg instanceof Arrival))
+        if(!(msg instanceof Arrival)) {
+            error("bad received message "+msg+" dropped.");
             return;
+        }
         
         onReceive((Arrival)msg);
     }

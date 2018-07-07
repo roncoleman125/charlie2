@@ -139,16 +139,6 @@ public class GameServer {
                     java.util.logging.Logger.getLogger(GameServer.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-
-//                        ois.close();
-//                        is.close();
-//                    if (oos != null) {
-//                        oos.close();
-//                    }
-//
-//                    if (os != null) {
-//                        os.close();
-//                    }
         } catch (IOException | ClassNotFoundException ex) {
             LOG.error("exception thrown: " + ex);
         }

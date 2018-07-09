@@ -34,7 +34,7 @@ import charlie.message.Message;
 import charlie.message.view.from.Bet;
 import charlie.message.view.from.DoubleDown;
 import charlie.message.view.from.Hit;
-import charlie.message.view.from.SplitFromView;
+import charlie.message.view.from.SplitRequest;
 import charlie.message.view.from.Stay;
 import charlie.message.view.to.Blackjack;
 import charlie.message.view.to.Bust;
@@ -47,7 +47,7 @@ import charlie.message.view.to.Play;
 import charlie.message.view.to.Push;
 import charlie.message.view.to.GameStart;
 import charlie.message.view.to.Shuffle;
-import charlie.message.view.to.SplitToView;
+import charlie.message.view.to.SplitResponse;
 import charlie.message.view.to.Win;
 import charlie.util.Constant;
 import java.net.InetAddress;
@@ -92,8 +92,8 @@ public class Courier extends Actor implements Listener {
         if(msg instanceof Outcome)
             onReceive((Outcome) msg);
         
-        else if(msg instanceof SplitToView)
-            onReceive((SplitToView) msg);
+        else if(msg instanceof SplitResponse)
+            onReceive((SplitResponse) msg);
         
         else if(msg instanceof Ready)
             onReceive((Ready) msg);
@@ -158,14 +158,14 @@ public class Courier extends Actor implements Listener {
      * @param hid The hand ID we are going to split (original hand)
      */
     public void split(Hid hid){
-        send(new SplitFromView(hid));
+        send(new SplitRequest(hid));
     }
     
     /**
      * Receives a split notification from the dealer with the new HID
      * @param split
      */
-    public void onReceive(SplitToView split){
+    public void onReceive(SplitResponse split){
         LOG.info("received split outcome from dealer");
         ui.split(split.getNewHid(), split.getOrigHid());
     }

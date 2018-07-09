@@ -34,7 +34,7 @@ import charlie.message.Message;
 import charlie.plugin.IPlayer;
 import charlie.message.view.from.DoubleDown;
 import charlie.message.view.from.Request;
-import charlie.message.view.from.SplitFromView;
+import charlie.message.view.from.SplitRequest;
 import charlie.message.view.from.Stay;
 import charlie.message.view.to.Blackjack;
 import charlie.message.view.to.Bust;
@@ -47,7 +47,7 @@ import charlie.message.view.to.Play;
 import charlie.message.view.to.Push;
 import charlie.message.view.to.GameStart;
 import charlie.message.view.to.Shuffle;
-import charlie.message.view.to.SplitToView;
+import charlie.message.view.to.SplitResponse;
 import charlie.message.view.to.Win;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -100,8 +100,8 @@ public class RealPlayer extends Actor implements Listener, IPlayer {
         else if (msg instanceof DoubleDown)
             onReceive((DoubleDown) msg);
 
-        else if (msg instanceof SplitFromView)
-            onReceive((SplitFromView) msg);
+        else if (msg instanceof SplitRequest)
+            onReceive((SplitRequest) msg);
         
         else if (msg instanceof Bet) {
             onReceive((Bet) msg);
@@ -137,7 +137,7 @@ public class RealPlayer extends Actor implements Listener, IPlayer {
         else if(request instanceof DoubleDown)
             dealer.doubleDown(this, hand);
         
-        else if(request instanceof SplitFromView){
+        else if(request instanceof SplitRequest){
             dealer.split(this, hand);
         }
         
@@ -280,7 +280,7 @@ public class RealPlayer extends Actor implements Listener, IPlayer {
     @Override
     public void split(Hid newHid, Hid hid){
 //        courier.send(new SplitToView(newHid, hid));
-        send(new SplitToView(newHid, hid));
+        send(new SplitResponse(newHid, hid));
     }
     
     /**

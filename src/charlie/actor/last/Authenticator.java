@@ -31,7 +31,7 @@ import java.util.Random;
  *
  * @author Ron.Coleman
  */
-public abstract class LoginActor extends Actor {
+public abstract class Authenticator extends Actor {
     private final static Random ran = new Random(0);
     protected Ticket ticket = null;
 
@@ -39,7 +39,7 @@ public abstract class LoginActor extends Actor {
      * Constructor
      * Initializes actor with property "charlie.server.login" in charlie.props.
      */
-    public LoginActor() {
+    public Authenticator() {
         super(System.getProperty("charlie.server.login"),
               System.getProperty("charlie.server.login"));
     }

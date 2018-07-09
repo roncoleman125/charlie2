@@ -26,7 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * This class contains convenience helper methods.
  * @author Ron.Coleman
  */
 public class Helper {

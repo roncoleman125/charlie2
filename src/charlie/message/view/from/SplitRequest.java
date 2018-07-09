@@ -8,9 +8,9 @@ import charlie.card.Hid;
  * 
  * @author Dan Blossom
  */
-public class SplitFromView extends Request {
+public class SplitRequest extends Request {
 
-    public SplitFromView(Hid hid){
+    public SplitRequest(Hid hid){
         super(hid);
     }
 }

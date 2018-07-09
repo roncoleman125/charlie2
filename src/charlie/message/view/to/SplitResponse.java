@@ -8,7 +8,7 @@ import charlie.message.Message;
  * 
  * @author blossom
  */
-public class SplitToView extends Message{
+public class SplitResponse extends Message{
     
     private final Hid origHid;
     private final Hid newHid;
@@ -18,7 +18,7 @@ public class SplitToView extends Message{
      * @param newHid
      * @param origHid
      */
-    public SplitToView(Hid newHid, Hid origHid){
+    public SplitResponse(Hid newHid, Hid origHid){
         this.newHid = newHid;
         this.origHid = origHid;
     }

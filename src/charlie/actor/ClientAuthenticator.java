@@ -22,7 +22,7 @@
  */
 package charlie.actor;
 
-import charlie.actor.last.LoginActor;
+import charlie.actor.last.Authenticator;
 import charlie.message.view.from.Login;
 import charlie.server.Ticket;
 import java.io.IOException;
@@ -36,7 +36,7 @@ import java.net.Socket;
  * This class implements the client-side login.
  * @author Ron.Coleman
  */
-public class ClientAuthenticator extends LoginActor {    
+public class ClientAuthenticator extends Authenticator {    
     public Ticket send(String logname, String password) {
         return send(new Login(logname, password));
     }

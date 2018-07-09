@@ -22,7 +22,7 @@
  */
 package charlie.actor;
 
-import charlie.actor.last.LoginActor;
+import charlie.actor.last.Authenticator;
 import charlie.message.Message;
 import charlie.message.view.from.Login;
 import charlie.server.GameServer;
@@ -39,7 +39,7 @@ import java.net.Socket;
  *
  * @author Ron.Coleman
  */
-public class ServerAuthenticator extends LoginActor {
+public class ServerAuthenticator extends Authenticator {
     private final GameServer server;
     
     public ServerAuthenticator(GameServer server) {

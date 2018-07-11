@@ -40,5 +40,6 @@ public class Constant {
     public final static int SHOE_Y = 0;
     public final static String PROPERTY_SIDE_BET_RULE = "charlie.sidebet.rule";     
     public final static String PROPERTY_SIDE_BET_VIEW = "charlie.sidebet.view"; 
-    public final static String PROPERTY_LOGAN5 = "charlie.bot.logan5";     
+    public final static String PROPERTY_LOGAN = "charlie.bot.logan"; 
+    public final static String PROPERTY_MONITOR = "charlie.monitor";
 }

@@ -49,6 +49,7 @@ import charlie.message.view.to.GameStart;
 import charlie.message.view.to.Shuffle;
 import charlie.message.view.to.SplitResponse;
 import charlie.message.view.to.Win;
+import charlie.plugin.IMonitor;
 import charlie.util.Constant;
 import java.net.InetAddress;
 
@@ -57,10 +58,10 @@ import java.net.InetAddress;
  * @author Ron Coleman
  */
 public class Courier extends Actor implements Listener {  
-    private final IUi ui;
+    protected final IUi ui;
     protected InetAddress myAddress;
     protected HoleCard holeCard;
-    protected Actor player;
+    protected IMonitor monitor;
     
     /**
      * Constructor
@@ -80,38 +81,63 @@ public class Courier extends Actor implements Listener {
     protected final void init() {
         ui.setCourier(this);
         
-        this.setListener(this);
+        this.listener = this;
+        
+        String className = System.getProperty(Constant.PROPERTY_MONITOR);
+        
+        if(className != null) {
+            try {
+                Class<?> clazz = Class.forName(className);
+                
+                monitor = (IMonitor) clazz.newInstance();
+                
+                info("monitor installed successfully: "+monitor.getClass().getSimpleName());
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+               error("exception caught: "+ex);
+            }
+        }
     }
     
     /**
      * Dispatches received messages.
-     * @param msg Message
+     * @param message Message
      */
     @Override
-    public void received(Message msg) {
-        if(msg instanceof Outcome)
-            onReceive((Outcome) msg);
+    public void received(Message message) {
+        if(message instanceof Outcome)
+            got((Outcome) message);
         
-        else if(msg instanceof SplitResponse)
-            onReceive((SplitResponse) msg);
+        else if(message instanceof SplitResponse)
+            got((SplitResponse) message);
         
-        else if(msg instanceof Ready)
-            onReceive((Ready) msg);
+        else if(message instanceof Ready)
+            got((Ready) message);
         
-        else if(msg instanceof GameStart)
-            onReceive((GameStart) msg);
+        else if(message instanceof GameStart)
+            got((GameStart) message);
         
-        else if(msg instanceof GameOver)
-            onReceive((GameOver)msg);
+        else if(message instanceof GameOver)
+            got((GameOver)message);
         
-        else if(msg instanceof Deal)
-            onReceive((Deal)msg);
+        else if(message instanceof Deal)
+            got((Deal)message);
         
-        else if(msg instanceof Play)
-            onReceive((Play)msg);
+        else if(message instanceof Play)
+            got((Play)message);
         
         else
-            LOG.error("dropping inbound message = "+msg.getClass().getSimpleName());
+            LOG.error("dropping inbound message = "+message.getClass().getSimpleName());
+        
+        if(monitor != null)
+            monitor.onReceive(message);
+    }
+    
+    @Override
+    public void send(Message message) {
+        super.send(message);
+        
+        if(monitor != null)
+            monitor.onSend(message);
     }
     
     /**
@@ -163,9 +189,9 @@ public class Courier extends Actor implements Listener {
     
     /**
      * Receives a split notification from the dealer with the new HID
-     * @param split
+     * @param split Response to split request
      */
-    public void onReceive(SplitResponse split){
+    public void got(SplitResponse split){
         LOG.info("received split outcome from dealer");
         ui.split(split.getNewHid(), split.getOrigHid());
     }
@@ -174,7 +200,7 @@ public class Courier extends Actor implements Listener {
      * Receives a game outcome from dealer surrogate actor on server.
      * @param outcome Game outcome
      */
-    public void onReceive(Outcome outcome) {
+    public void got(Outcome outcome) {
         LOG.info("received outcome = "+outcome);
         
         Hid hid = outcome.getHid();
@@ -199,7 +225,7 @@ public class Courier extends Actor implements Listener {
      * Receives a connected message sent by the house actor.
      * @param msg Ready message
      */
-    public void onReceive(Ready msg) {
+    public void got(Ready msg) {
         LOG.info("received "+msg+" from "+msg.getSource());
         
         synchronized(ui) {
@@ -211,7 +237,7 @@ public class Courier extends Actor implements Listener {
      * Receives game starting message from dealer surrogate actor on server.
      * @param starting Game start which contains hand ids and shoe size
      */
-    public void onReceive(GameStart starting) { 
+    public void got(GameStart starting) { 
         LOG.info("receive starting shoe size = "+starting.shoeSize());
         
         for(Hid hid: starting.getHids())
@@ -224,7 +250,7 @@ public class Courier extends Actor implements Listener {
      * Receives a card deal from the dealer surrogate actor on the server.
      * @param deal Deal containing card
      */
-    public void onReceive(Deal deal) {      
+    public void got(Deal deal) {      
         Hid hid = deal.getHid();
         
         Card card = deal.getCard();
@@ -243,7 +269,7 @@ public class Courier extends Actor implements Listener {
      * Receives the play turn.
      * @param turn Turn
      */
-    public void onReceive(Play turn) {
+    public void got(Play turn) {
         LOG.info("got turn = "+turn.getHid());
         
         ui.turn(turn.getHid());
@@ -254,7 +280,7 @@ public class Courier extends Actor implements Listener {
      * Receives the game over signal from the dealer surrogate on the server.
      * @param ending Game over
      */
-    public void onReceive(GameOver ending) {
+    public void got(GameOver ending) {
         LOG.info("received ending shoe size = "+ending.getShoeSize());
         ui.ending(ending.getShoeSize());
     }
@@ -263,17 +289,9 @@ public class Courier extends Actor implements Listener {
      * Receives the shuffling signal from the dealer surrogate on the server.
      * @param shuffle Shuffle
      */
-    public void onReceive(Shuffle shuffle) {
+    public void got(Shuffle shuffle) {
         LOG.info("received shuffle");
         ui.shuffling();
-    }
-    
-    /**
-     * Receives a string message typically for testing purposes.
-     * @param s String
-     */
-    public void onReceive(String s) {
-        System.out.println(s);
     }
     
     /**
@@ -282,5 +300,13 @@ public class Courier extends Actor implements Listener {
      */
     public void setMyAddress(InetAddress mine) {
         this.myAddress = mine;
+    }
+    
+    /**
+     * Gets the monitor.
+     * @return Monitor
+     */
+    public IMonitor getMonitor() {
+        return monitor;
     }
 }

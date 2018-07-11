@@ -100,10 +100,12 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
     protected Image shoeImg;
     protected Image trayImg;
     protected ABurnCard burnCard = new ABurnCard();
+    // These keep track of state for playing sounds
     protected int numHands;
-    protected int loserCount;
-    protected int pushCount;
-    protected int winnerCount;
+    protected int loses;
+    protected int pushes;
+    protected int wins;
+    
     protected ISideBetView sideBetView;
     protected Properties props; 
     protected ILogan logan;
@@ -148,7 +150,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
      * Clears table of old bets, etc.
      */
     public void clear() {
-        winnerCount = loserCount = pushCount = 0;
+        wins = loses = pushes = 0;
         
         for (AHandsManager animator : seats.values()) {
             animator.clear();
@@ -489,7 +491,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
         if (hid.getSeat() != Seat.DEALER) {
             SoundFactory.play(Effect.BUST);
-            loserCount++;
+            loses++;
         }
         
         if(sideBetView != null)
@@ -516,7 +518,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
         money.increase(hid.getAmt());
 
-        winnerCount++;
+        wins++;
         
         if(sideBetView != null)
             sideBetView.ending(hid);
@@ -542,7 +544,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
         money.decrease(hid.getAmt());
 
-        loserCount++;
+        loses++;
         
         if(sideBetView != null)
             sideBetView.ending(hid);
@@ -564,7 +566,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
         hand.setOutcome(AHand.Outcome.Push);
         
-        ++pushCount;
+        ++pushes;
         
         if(sideBetView != null)
             sideBetView.ending(hid);
@@ -593,7 +595,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
         if (hid.getSeat() != Seat.DEALER) {
             SoundFactory.play(Effect.BJ);
 
-            winnerCount++;
+            wins++;
         }
         
         if(sideBetView != null)
@@ -622,7 +624,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
         SoundFactory.play(Effect.CHARLIE);
 
-        winnerCount++;
+        wins++;
         
         if(sideBetView != null)
             sideBetView.ending(hid);
@@ -676,10 +678,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
      */
     @Override
     public void ending(final int shoeSize) {
-        LOG.info("num hands = "+numHands);
-        LOG.info("winner count = "+winnerCount);
-        LOG.info("looser count = "+loserCount);
-        LOG.info("push count = "+pushCount);
+        LOG.info("num hands = "+numHands+" wins = "+wins+" loses = "+loses+" pushes = "+pushes);
         
         // Game now over
         gameOver = true;
@@ -718,13 +717,15 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
         }
 
-        if (winnerCount == numHands - 1) {
+        // All hands (minus dealer) must win, lose, or push to make a sound
+        if (wins == numHands - 1)
             SoundFactory.play(Effect.NICE);
-        } else if (loserCount == numHands - 1) {
+
+        else if (loses == numHands - 1)
             SoundFactory.play(Effect.TOUGH);
-        } else if (pushCount == numHands - 1) {
+
+        else if (pushes == numHands - 1)
             SoundFactory.play(Effect.PUSH);
-        }
     }
 
     /**
@@ -873,7 +874,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
      */
     protected void loadAutoPilot() {
         try {
-            String className = props.getProperty(Constant.PROPERTY_LOGAN5);
+            String className = props.getProperty(Constant.PROPERTY_LOGAN);
             
             if (className == null)
                 return;

@@ -125,6 +125,9 @@ public class Courier extends Actor implements Listener {
         else if(message instanceof Play)
             got((Play)message);
         
+        else if(message instanceof Shuffle)
+            got((Shuffle)message);
+        
         else
             LOG.error("dropping inbound message = "+message.getClass().getSimpleName());
         

@@ -92,7 +92,9 @@ public class Shoe  implements IShoe {
         
         index = 0;
                 
-        int cutSize = Math.min(ran.nextInt(13) + 13, cards.size() / 3);
+        int next13 = ran.nextInt(13);
+        
+        int cutSize = Math.min(next13 + 13, cards.size() / 3);
         
 //        burnIndex = cards.size() - ran.nextInt(13) - 13;
         burnIndex = cards.size() - cutSize;

@@ -32,20 +32,8 @@ import java.util.Random;
 public class Shoe01 extends Shoe {   
     @Override
     public void init() {
-//        cards.clear();
-//        cards.add(new Card(Card.QUEEN, Card.Suit.HEARTS));
-//        cards.add(new Card(6, Card.Suit.CLUBS));
-//        cards.add(new Card(Card.ACE, Card.Suit.SPADES));
-//        cards.add(new Card(3, Card.Suit.SPADES));
-//        cards.add(new Card(2, Card.Suit.SPADES));
-//        cards.add(new Card(4, Card.Suit.DIAMONDS));
-//        cards.add(new Card(6, Card.Suit.HEARTS));
-//        cards.add(new Card(5, Card.Suit.CLUBS)); 
-        super.ran = new Random(1);
-        
-        // This causes 8,8 at some point which is useful for debugging splits
-        ran.nextInt();
-                
+        super.ran = new Random(/*1*/);
+                        
         super.numDecks = 1;
         
         super.load();

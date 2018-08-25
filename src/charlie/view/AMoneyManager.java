@@ -36,8 +36,6 @@ import java.awt.Image;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 
 /**
@@ -297,7 +295,7 @@ public class AMoneyManager {
     
     /**
      * Renders the money on table.
-     * @param g 
+     * @param g Graphics context
      */
     public void render(Graphics2D g) {
         for(int i=0; i < buttons.size(); i++) {

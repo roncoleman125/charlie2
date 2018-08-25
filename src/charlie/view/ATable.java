@@ -66,7 +66,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
     protected String[] dewey = {"Dewey"};
     protected AHandsManager you = new AHandsManager("You", new Point(250, 225));
     protected AHandsManager dealer = new AHandsManager("Dealer", new Point(225, 0));
-    protected AHandsManager b9 = new AHandsManager(huey[ran.nextInt(huey.length)], new Point(450, 150));
+    protected AHandsManager b9 = new AHandsManager(huey[ran.nextInt(huey.length)], new Point(465, 150));
     protected AHandsManager n6 = new AHandsManager(dewey[ran.nextInt(dewey.length)], new Point(25, 150));
     protected AHandsManager[] handsManager = {you, dealer, b9, n6};
     protected TurnIndicator turnSprite = new TurnIndicator();

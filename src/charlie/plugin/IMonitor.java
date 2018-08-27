@@ -25,7 +25,7 @@ package charlie.plugin;
 import charlie.message.Message;
 
 /**
- *
+ * A class that implements this interface monitors all message traffic to and from courier.
  * @author Ron.Coleman
  */
 public interface IMonitor {

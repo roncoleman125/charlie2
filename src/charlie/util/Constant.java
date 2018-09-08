@@ -38,8 +38,9 @@ public class Constant {
     public final static Integer MIN_BET = 5;
     public final static int SHOE_X = 500;
     public final static int SHOE_Y = 0;
-    public final static String PROPERTY_SIDE_BET_RULE = "charlie.sidebet.rule";     
-    public final static String PROPERTY_SIDE_BET_VIEW = "charlie.sidebet.view"; 
-    public final static String PROPERTY_LOGAN = "charlie.bot.logan"; 
-    public final static String PROPERTY_MONITOR = "charlie.monitor";
+    public final static String PLUGIN_SIDE_BET_RULE = "charlie.sidebet.rule";     
+    public final static String PLUGIN_SIDE_BET_VIEW = "charlie.sidebet.view"; 
+    public final static String PLUGIN_LOGAN = "charlie.bot.logan"; 
+    public final static String PLUGIN_TRAP = "charlie.monitor";
+    public final static String PLUGIN_SHOE = "charlie.shoe";
 }

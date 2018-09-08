@@ -25,10 +25,11 @@ package charlie.plugin;
 import charlie.message.Message;
 
 /**
- * A class that implements this interface monitors all message traffic to and from courier.
+ * A class that implements this interface monitors or "traps" all inbound and outbound
+ * messages with respect to the view.
  * @author Ron.Coleman
  */
-public interface IMonitor {
+public interface ITrap {
     /**
      * Invoked after a message has been successfully sent.
      * @param msg Message

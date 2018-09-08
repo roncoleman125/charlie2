@@ -87,7 +87,7 @@ public class Dealer implements Serializable {
         // Instantiate the shoe
         Properties props = System.getProperties();
         
-        String scenario = props.getProperty("charlie.shoe", "charlie.card.Shoe");
+        String scenario = props.getProperty(Constant.PLUGIN_SHOE, "charlie.card.Shoe");
         LOG.info("using scenario = '"+scenario+"'");
         
         shoe = ShoeFactory.getInstance(scenario);
@@ -781,7 +781,7 @@ public class Dealer implements Serializable {
      * Loads the side bet rule.
      */
     protected final void loadSideRule() {        
-        String className = System.getProperty(Constant.PROPERTY_SIDE_BET_RULE);
+        String className = System.getProperty(Constant.PLUGIN_SIDE_BET_RULE);
         
         if(className == null) 
             return;

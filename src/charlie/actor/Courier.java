@@ -49,9 +49,9 @@ import charlie.message.view.to.GameStart;
 import charlie.message.view.to.Shuffle;
 import charlie.message.view.to.SplitResponse;
 import charlie.message.view.to.Win;
-import charlie.plugin.IMonitor;
 import charlie.util.Constant;
 import java.net.InetAddress;
+import charlie.plugin.ITrap;
 
 /**
  * This class implements the courier actor between the client and server.
@@ -61,7 +61,7 @@ public class Courier extends Actor implements Listener {
     protected final IUi ui;
     protected InetAddress myAddress;
     protected HoleCard holeCard;
-    protected IMonitor monitor;
+    protected ITrap trap;
     
     /**
      * Constructor
@@ -83,15 +83,15 @@ public class Courier extends Actor implements Listener {
         
         this.listener = this;
         
-        String className = System.getProperty(Constant.PROPERTY_MONITOR);
+        String className = System.getProperty(Constant.PLUGIN_TRAP);
         
         if(className != null) {
             try {
                 Class<?> clazz = Class.forName(className);
                 
-                monitor = (IMonitor) clazz.newInstance();
+                trap = (ITrap) clazz.newInstance();
                 
-                info("monitor installed successfully: "+monitor.getClass().getSimpleName());
+                info("monitor installed successfully: "+trap.getClass().getSimpleName());
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
                error("exception caught: "+ex);
             }
@@ -131,16 +131,16 @@ public class Courier extends Actor implements Listener {
         else
             LOG.error("dropping inbound message = "+message.getClass().getSimpleName());
         
-        if(monitor != null)
-            monitor.onReceive(message);
+        if(trap != null)
+            trap.onReceive(message);
     }
     
     @Override
     public void send(Message message) {
         super.send(message);
         
-        if(monitor != null)
-            monitor.onSend(message);
+        if(trap != null)
+            trap.onSend(message);
     }
     
     /**
@@ -306,10 +306,10 @@ public class Courier extends Actor implements Listener {
     }
     
     /**
-     * Gets the monitor.
-     * @return Monitor
+     * Gets the trap.
+     * @return Trap, if one has been configured.
      */
-    public IMonitor getMonitor() {
-        return monitor;
+    public ITrap getTrap() {
+        return trap;
     }
 }

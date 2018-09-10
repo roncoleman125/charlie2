@@ -41,6 +41,6 @@ public class Constant {
     public final static String PLUGIN_SIDE_BET_RULE = "charlie.sidebet.rule";     
     public final static String PLUGIN_SIDE_BET_VIEW = "charlie.sidebet.view"; 
     public final static String PLUGIN_LOGAN = "charlie.bot.logan"; 
-    public final static String PLUGIN_TRAP = "charlie.monitor";
+    public final static String PLUGIN_TRAP = "charlie.trap";
     public final static String PLUGIN_SHOE = "charlie.shoe";
 }

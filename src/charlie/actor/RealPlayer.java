@@ -41,7 +41,7 @@ import charlie.message.view.to.Bust;
 import charlie.message.view.to.Charlie;
 import charlie.message.view.to.Deal;
 import charlie.message.view.to.GameOver;
-import charlie.message.view.to.Loose;
+import charlie.message.view.to.Lose;
 import charlie.message.view.to.Ready;
 import charlie.message.view.to.Play;
 import charlie.message.view.to.Push;
@@ -188,7 +188,7 @@ public class RealPlayer extends Actor implements Listener, IPlayer {
     @Override
     public void lose(Hid hid) {
 //        courier.send(new Loose(hid));
-        send(new Loose(hid));
+        send(new Lose(hid));
     }
     
     /**

@@ -684,12 +684,14 @@ public class GameFrame extends javax.swing.JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-
+                // get active hand
+                Hid hid = hids.get(frame.handIndex);
+                
+                if (!confirmed(hid, Play.SPLIT))
+                    return;
                 // no more splits this go.
                 splitButton.setEnabled(false);
 
-                // get active hand
-                Hid hid = hids.get(frame.handIndex);
 
                 // tell the dealer we requested a split and provide an HID
                 courier.split(hid);

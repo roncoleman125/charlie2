@@ -96,7 +96,7 @@ public interface IPlayer {
     abstract public void push(Hid hid);
     
     /**
-     * Tells player the hand pushed.
+     * Tells player shoe to be shuffled before the start of the next game.
      */     
     abstract public void shuffling();
     

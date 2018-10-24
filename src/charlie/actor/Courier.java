@@ -41,7 +41,7 @@ import charlie.message.view.to.Bust;
 import charlie.message.view.to.Charlie;
 import charlie.message.view.to.Deal;
 import charlie.message.view.to.GameOver;
-import charlie.message.view.to.Loose;
+import charlie.message.view.to.Lose;
 import charlie.message.view.to.Outcome;
 import charlie.message.view.to.Play;
 import charlie.message.view.to.Push;
@@ -216,7 +216,7 @@ public class Courier extends Actor implements Listener {
             ui.win(hid);
         else if(outcome instanceof Push)
             ui.push(hid);
-        else if(outcome instanceof Loose)
+        else if(outcome instanceof Lose)
             ui.lose(hid);
         else if(outcome instanceof Bust)
             ui.bust(hid);

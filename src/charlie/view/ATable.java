@@ -223,7 +223,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
     /**
      * Paints the display some time after repainted invoked.
      *
-     * @param g_
+     * @param g_ Graphics context
      */
     @Override
     public synchronized void paint(Graphics g_) {
@@ -329,8 +329,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
     }
 
     /**
-     * Sets the amt.
-     *
+     * Sets the amount.
      * @param amt Bankroll
      */
     public void setBankroll(Double amt) {
@@ -348,7 +347,6 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
     /**
      * Double upBet on the table.
-     *
      * @param hid Hand id
      */
     public void dubble(Hid hid) {
@@ -359,7 +357,6 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
     /**
      * Sets the turn for a hand.
-     *
      * @param hid Hand id
      */
     @Override
@@ -429,7 +426,6 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
     /**
      * Receives a hit for a hand.
-     *
      * @param hid Hand id
      * @param card Card hitting the hand
      * @param handValues Hand values
@@ -473,8 +469,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
     }
 
     /**
-     * Busts a hand.
-     *
+     * Updates a hand with a break outcome.
      * @param hid Hand id
      */
     @Override
@@ -503,7 +498,6 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
     /**
      * Updates hand with winning outcome.
-     *
      * @param hid Hand id
      */
     @Override
@@ -529,7 +523,6 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
     /**
      * Updates hand with loosing outcome.
-     *
      * @param hid Hand id
      */
     @Override
@@ -555,7 +548,6 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
     /**
      * Updates hand with push outcome.
-     *
      * @param hid Hand id
      */
     @Override
@@ -577,7 +569,6 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
     /**
      * Updates hand with Blackjack outcome.
-     *
      * @param hid Hand id
      */
     @Override
@@ -607,7 +598,6 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
     /**
      * Updates hand with Charlie outcome.
-     *
      * @param hid Hand id
      */
     @Override
@@ -637,12 +627,11 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
      * Starts a game.
      * Note: we received the initial player bankroll during login
      * which is handled by GameFrame.
-     *
      * @param shoeSize Shoe size
      * @param hids Hand ids in this game
      */
     @Override
-    public void starting(List<Hid> hids, int shoeSize) {       
+    public void starting(List<Hid> hids, final int shoeSize) {       
         numHands = hids.size();
 
         this.shoeSize = shoeSize;
@@ -673,7 +662,6 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
     /**
      * Signals end of a game.
-     *
      * @param shoeSize Shoe size
      */
     @Override
@@ -742,14 +730,17 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
             logan.shuffling();
     }
 
+    /**
+     * Invoked as callback when mouse clicked.
+     * @param e Mouse event
+     */
     @Override
     public void mouseClicked(MouseEvent e) {
     }
 
     /**
-     * Register upBets.
-     *
-     * @param e Event
+     * Register up bets.
+     * @param e Mouse event
      */
     @Override
     public void mousePressed(MouseEvent e) {
@@ -774,9 +765,8 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
     }
 
     /**
-     * Toggles the button image from pressed to up.
-     *
-     * @param e
+     * Toggles button from pressed image to up image.
+     * @param e Mouse event
      */
     @Override
     public void mouseReleased(MouseEvent e) {
@@ -786,10 +776,18 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
         monies.get(Seat.YOU).unclick();
     }
 
+    /**
+     * Invoked when mouse enters the JPanel.
+     * @param e Mouse event
+     */
     @Override
     public void mouseEntered(MouseEvent e) {
     }
-
+    
+    /**
+     * Invoked when mouse exists the JPanel.
+     * @param e Mouse event
+     */
     @Override
     public void mouseExited(MouseEvent e) {
     }
@@ -804,15 +802,15 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
     }
     
     /**
-     * Tests whether the logan has been installed.
-     * @return 
+     * Tests whether the Logan has been installed.
+     * @return True if auto-pilot enabled.
      */
     public boolean autopilotEngaged() {
         return logan != null;
     }
     
     /**
-     * Starts the logan.
+     * Starts the Logan.
      */
     public void startAutopilot() {
         this.logan.setMoneyManager(this.monies.get(Seat.YOU));
@@ -870,7 +868,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
     }
     
     /**
-     * Loads the logan based on the property file setting.
+     * Loads the Logan based on the property file setting.
      */
     protected void loadAutoPilot() {
         try {
@@ -916,15 +914,15 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
         try {
             Thread.sleep((long) (seconds * 1000));
         }
-        catch(Exception e) {
+        catch(InterruptedException e) {
             
         }
     }
 
     /**
-     * Gets invoked by Courier that dealer has ack split request
-     * @param newHid
-     * @param origHid 
+     * Gets invoked by Courier that dealer has acknowledged split request
+     * @param newHid New hand id
+     * @param origHid Original (split) hand id
      */
     @Override
     public void split(Hid newHid, Hid origHid) {

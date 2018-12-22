@@ -88,6 +88,10 @@ public final class ABurnCard extends ACard {
         g.drawImage(img, x, y,null);
     }
     
+    /**
+     * Gets the burn card image.
+     * @return Image for the burn card.
+     */
     public static Image getBurnImage() {
         String path = Constant.DIR_IMGS + "burn-card-2.png";
         

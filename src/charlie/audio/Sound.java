@@ -24,6 +24,7 @@ package charlie.audio;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -88,12 +89,11 @@ public class Sound {
             bais = new Bais(buf, 0, n);
             
             audioInputStream = AudioSystem.getAudioInputStream(bais);
-        } catch (Exception e) {
-            /*
-             In case of an exception, we dump the exception
-             including the stack trace to the console output.
-             Then, we exit the program.
-             */
+        } catch (FileNotFoundException e) {
+            System.err.println("audio files do not appear to be installed");
+            System.exit(1);
+        }
+        catch(IOException | UnsupportedAudioFileException e) {
             e.printStackTrace();
             System.exit(1);
         }

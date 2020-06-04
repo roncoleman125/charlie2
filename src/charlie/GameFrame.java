@@ -34,12 +34,16 @@ import charlie.util.Play;
 import charlie.plugin.IAdvisor;
 import charlie.server.Ticket;
 import charlie.view.ATable;
+import static com.sun.java.accessibility.util.AWTEventMonitor.addItemListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 //import org.slf4j.Logger;
@@ -103,18 +107,37 @@ public class GameFrame extends javax.swing.JFrame {
      * Initializes the frame.
      */
     protected final void init() {
+        // Establish the title
         this.setTitle("Charlie2");
         
+        // Get the ATable on to the grame
         table = new ATable(this, this.surface);
 
         surface.add(table);
 
+        // Position the frame
         this.setLocationRelativeTo(null);
 
+        // Initially we can't deal or play
         enableDeal(false);
 
         enablePlay(false);
+        
+        // Initialize the sounds
+        this.soundsCheckBox.setSelected(true);
+        
+        this.soundsCheckBox.addItemListener(new ItemListener() {    
+             @Override
+             public void itemStateChanged(ItemEvent e) {                 
+                JCheckBox checkBox = (JCheckBox) e.getItem();
+                if(checkBox.isSelected())
+                    SoundFactory.enable(true);
+                else
+                    SoundFactory.enable(false);
+             }    
+          });    
 
+        // Load the rest of the configuration
         loadConfig();
     }
     
@@ -126,16 +149,6 @@ public class GameFrame extends javax.swing.JFrame {
             // Get the properties
             Properties props = System.getProperties();
             props.load(new FileInputStream("charlie.props"));   
-            
-            // Configure sounds
-            String sounds = props.getProperty(SOUND_EFFECTS_PROPERTY);
-            
-            if(sounds != null && sounds.equals("false")) {
-                SoundFactory.enable(false);
-                LOG.info("sounds disabled");
-            }
-            else
-                SoundFactory.enable(true);
             
             // Load the advisor
             loadAdvisor();
@@ -342,6 +355,7 @@ public class GameFrame extends javax.swing.JFrame {
         ddownButton = new javax.swing.JButton();
         splitButton = new javax.swing.JButton();
         adviseCheckBox = new javax.swing.JCheckBox();
+        soundsCheckBox = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -408,6 +422,8 @@ public class GameFrame extends javax.swing.JFrame {
             }
         });
 
+        soundsCheckBox.setText("Sounds");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -417,8 +433,10 @@ public class GameFrame extends javax.swing.JFrame {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(surface, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
-                        .add(adviseCheckBox)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 244, Short.MAX_VALUE)
+                        .add(soundsCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 67, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(adviseCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 64, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 168, Short.MAX_VALUE)
                         .add(splitButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(ddownButton)
@@ -445,7 +463,8 @@ public class GameFrame extends javax.swing.JFrame {
                     .add(stayButton)
                     .add(ddownButton)
                     .add(splitButton)
-                    .add(adviseCheckBox))
+                    .add(adviseCheckBox)
+                    .add(soundsCheckBox))
                 .addContainerGap())
         );
 
@@ -800,6 +819,7 @@ public class GameFrame extends javax.swing.JFrame {
     private javax.swing.JButton ddownButton;
     private javax.swing.JButton dealButton;
     private javax.swing.JButton hitButton;
+    private javax.swing.JCheckBox soundsCheckBox;
     private javax.swing.JButton splitButton;
     private javax.swing.JButton stayButton;
     private javax.swing.JPanel surface;

@@ -26,6 +26,7 @@ import charlie.actor.ClientAuthenticator;
 import charlie.card.Hid;
 import charlie.actor.Courier;
 import charlie.actor.Arriver;
+import charlie.audio.Effect;
 import charlie.audio.SoundFactory;
 import charlie.card.Card;
 import charlie.card.Hand;
@@ -77,7 +78,7 @@ public class GameFrame extends javax.swing.JFrame {
     protected boolean manuallyControlled = true;
     
     /**
-     * Is a hand "splitable
+     * Is a hand "split-able
      * @author Dan Blossom
      * @date 10/2017
      */
@@ -197,6 +198,8 @@ public class GameFrame extends javax.swing.JFrame {
             return true;
         
         if (this.adviseCheckBox.isSelected() && advice != play) {
+            SoundFactory.play(Effect.BAD_PLAY);
+            
             Object[] options = {
                 play,
                 "Cancel"};
@@ -523,6 +526,8 @@ public class GameFrame extends javax.swing.JFrame {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
+                    SoundFactory.play(Effect.ADIOS);
+                    
                     Object[] options = { "YES", "Cancel" };
                     int n = JOptionPane.showOptionDialog(frame,
                             "Sure you want to quit game?",
@@ -569,6 +574,7 @@ public class GameFrame extends javax.swing.JFrame {
                 Integer amt = table.getBetAmt();
 
                 if (amt <= 0) {
+                    SoundFactory.play(Effect.NO_BET);
                     JOptionPane.showMessageDialog(frame,
                             "Minimum bet is $5.",
                             "Status",

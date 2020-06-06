@@ -484,8 +484,8 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
         money.decrease(hid.getAmt());
 
-        if (hid.getSeat() != Seat.DEALER) {
-            SoundFactory.play(Effect.BUST);
+        if (hid.getSeat() != Seat.DEALER && numHands == 2) {
+            SoundFactory.play(Effect.TOUGH);
             loses++;
         }
         
@@ -512,8 +512,11 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
         money.increase(hid.getAmt());
 
-        wins++;
-        
+        if(hid.getSeat() != Seat.DEALER && numHands == 2) {
+            SoundFactory.play(Effect.NICE);
+            wins++;
+        }
+
         if(sideBetView != null)
             sideBetView.ending(hid);
         
@@ -536,8 +539,10 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
         AMoneyManager money = this.monies.get(hid.getSeat());
 
         money.decrease(hid.getAmt());
-
-        loses++;
+        if(hid.getSeat() != Seat.DEALER && numHands == 2) {
+           ++loses;
+           SoundFactory.play(Effect.TOUGH);
+        }
         
         if(sideBetView != null)
             sideBetView.ending(hid);
@@ -558,8 +563,11 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
         hand.setOutcome(AHand.Outcome.Push);
         
-        ++pushes;
-        
+        if(hid.getSeat() != Seat.DEALER && numHands == 2) {
+           ++pushes;
+           SoundFactory.play(Effect.PUSH);
+        }
+
         if(sideBetView != null)
             sideBetView.ending(hid);
         
@@ -585,7 +593,6 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
         if (hid.getSeat() != Seat.DEALER) {
             SoundFactory.play(Effect.BJ);
-
             wins++;
         }
         
@@ -612,9 +619,10 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
         money.increase(hid.getAmt());
 
-        SoundFactory.play(Effect.CHARLIE);
-
-        wins++;
+        if(hid.getSeat() != Seat.DEALER) {
+            SoundFactory.play(Effect.CHARLIE);
+            wins++;
+        }
         
         if(sideBetView != null)
             sideBetView.ending(hid);
@@ -705,14 +713,14 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
         }
 
-        // All hands (minus dealer) must win, lose, or push to make a sound
-        if (wins == numHands - 1)
+        // All hands (not including dealer) must win, lose, or push to make a sound
+        if (wins == numHands - 1 && numHands > 2)
             SoundFactory.play(Effect.NICE);
 
-        else if (loses == numHands - 1)
+        else if (loses == numHands - 1  && numHands > 2)
             SoundFactory.play(Effect.TOUGH);
 
-        else if (pushes == numHands - 1)
+        else if (pushes == numHands - 1  && numHands > 2)
             SoundFactory.play(Effect.PUSH);
     }
 

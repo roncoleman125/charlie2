@@ -37,5 +37,8 @@ public enum Effect {
     CHIPS_IN,
     CHIPS_OUT,
     SHUFFLING,
-    TURN
+    TURN,
+    NO_BET,
+    BAD_PLAY,
+    ADIOS
 };

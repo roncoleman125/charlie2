@@ -28,6 +28,8 @@ import java.util.Random;
 
 /**
  * This class implements the factory pattern for managing and playing sounds.
+ * WAV files must be 8-bit.
+ * See here for online converter: https://audio.online-convert.com/convert-to-wav
  * @author Ron Coleman
  */
 public class SoundFactory {   
@@ -35,20 +37,23 @@ public class SoundFactory {
     private final static Sound DEAL_SOUND1 = new Sound("audio/tap.wav");
 //    private final static Sound DEAL_SOUND2 = new Sound("audio/Telemet_33G_HD2-32076.wav");
     private final static Sound[] CHARLIE_SOUNDS = { 
-        new Sound("audio/shazam2.wav")
+        new Sound("audio/shazam2.wav"),
+        new Sound("audio/mostimprs-2.wav")
     };
     private final static Sound[] BJ_SOUNDS = { 
         new Sound("audio/you-can-do-it.wav"), 
         new Sound("audio/you-got-it-1.wav"),
         new Sound("audio/wahoo.wav"),
-//        new Sound("audio/mostimprs-2.wav")
+        new Sound("audio/impressive-2.wav"),
     };
     private final static Sound[] NICE_SOUNDS = { 
         new Sound("audio/wow.wav"), 
         new Sound("audio/austin_yeahbaby_converted.wav"),
         new Sound("audio/woow.wav"),
         new Sound("audio/goodshot-2.wav"),
-//        new Sound("audio/impressive-2.wav")
+        new Sound("audio/Arcade Dungeon Pickup Collect.wav"),
+        new Sound("audio/Arcade Dungeon Health Restored.wav"),
+        new Sound("audio/impressive-2.wav")
     };
     private final static Sound[] OUCH_SOUNDS = {
         new Sound("audio/evil_laf.wav"), 
@@ -60,11 +65,16 @@ public class SoundFactory {
         new Sound("audio/1doh.wav"),
         new Sound("audio/ow2.wav"),
         new Sound("audio/awwcrap.wav"),
-//        new Sound("audio/good_grief.wav")
-//        new Sound("audio/vplaugh.wav")
+        new Sound("audio/swvader01.wav"),
+        new Sound("audio/Arcade Game Deplete.wav"),
+        new Sound("audio/jabba-the-hutt-laughing.wav"),
+        new Sound("audio/ouch.wav"),
+        // https://www.mediacollege.com/downloads/sound-effects/star-wars/
+        new Sound("audio/hansolo_badfeeling-2.wav")
     };
     private final static Sound[] PUSH_SOUNDS ={ 
         new Sound("audio/trap.wav") ,
+        new Sound("audio/Arcade Game Down Bleeps.wav")
 //        new Sound("audio/whatwsth.wav")
     };
     private final static Sound[] BREAK_SOUNDS = { 
@@ -72,10 +82,21 @@ public class SoundFactory {
     };
     private final static Sound CHIPS_IN_SOUIND = new Sound("audio/Games_Poker_Chip_08950004.wav");
     private final static Sound CHIPS_OUT_SOUND = new Sound("audio/Games_Poker_Chip_08950003.wav");
+    
     private final static Sound SHUFFLE_SOUND = new Sound("audio/013012_Casino-Cards_28_A1.wav");
+    
     private final static Sound TURN_SOUND = new Sound("audio/Telemet_33G_HD2-32076.wav");
-    private static long lastTime = System.currentTimeMillis();   
+    
+    private final static Sound NO_BET_SOUND = new Sound("audio/Arcade Game Flyby Zoom.wav");
+    
+    private final static Sound BAD_PLAY_SOUND = new Sound("audio/Arcade Game Annoying Beep.wav");
+    
+    private final static Sound ADIOS_SOUND = new Sound("audio/Arcade Fun Multi Hit.wav");
+    
+    private static long lastTime = System.currentTimeMillis();  
+    
     protected static Random toss = new Random();
+    
     private static boolean enabled = true;
 
     /**
@@ -108,6 +129,7 @@ public class SoundFactory {
      * @param e Effect Effect to play
      */
     public static void play(Effect e) {
+        System.err.println("play invoked e = "+e+" enabled = "+enabled);
         if(!enabled)
             return;
         
@@ -137,14 +159,24 @@ public class SoundFactory {
                 PUSH_SOUNDS[toss.nextInt(PUSH_SOUNDS.length)].play();
                 break;                
             case BUST:
-                BREAK_SOUNDS[toss.nextInt(BREAK_SOUNDS.length)].play();
+                // For some reason this code does not play a sound.
+//                BREAK_SOUNDS[toss.nextInt(BREAK_SOUNDS.length)].play();
                 break; 
             case CHIPS_IN:
                 backgroundPlay(CHIPS_IN_SOUIND,1);
                 break;
             case CHIPS_OUT:
                 backgroundPlay(CHIPS_OUT_SOUND,1);
-                break;                
+                break;    
+            case NO_BET:
+                backgroundPlay(NO_BET_SOUND, 1);
+                break;
+            case BAD_PLAY:
+                backgroundPlay(BAD_PLAY_SOUND, 1);
+                break;
+            case ADIOS:
+                backgroundPlay(ADIOS_SOUND, 1);
+                break;
         }        
     }
     

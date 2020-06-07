@@ -48,7 +48,10 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 import charlie.util.Constant;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.util.logging.Level;
 
 /**
@@ -148,12 +151,35 @@ public class GameFrame extends javax.swing.JFrame {
         try {
             // Get the properties
             Properties props = System.getProperties();
-            props.load(new FileInputStream("charlie.props"));   
+            props.load(new FileInputStream("charlie.props"));  
+            
+            // Disable sounds, if configured as such
+            String value = props.getProperty("charlie.sounds");
+            if(value != null && value.equals("off")) {
+                soundsCheckBox.setEnabled(false);
+                soundsCheckBox.setSelected(false);
+                SoundFactory.enable(false);
+            }
+            
+            // Check for sound files folder
+            File f = new File("audio");
+            if(!f.exists() || !f.isDirectory()) {
+                JOptionPane.showMessageDialog(this,
+                        "Could not find audio files.",
+                        "Status",
+                        JOptionPane.ERROR_MESSAGE); 
+                System.exit(1);
+            
+            }
             
             // Load the advisor
             loadAdvisor();
         } catch(IOException e) {
-            LOG.info("failed to load charlie.props: "+e);
+            JOptionPane.showMessageDialog(this,
+                    "Could not find or load charlie.props.",
+                    "Status",
+                    JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
         }
     }
     

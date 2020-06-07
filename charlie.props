@@ -4,6 +4,7 @@ charlie.server.realplayer 127.0.0.1:8501
 charlie.client.courier -1:8001
 charlie.debug true
 charlie.shoe charlie.card.Shoe01
+#charlie.sounds off
 #charlie.advisor charlie.client.Advisor
 #charlie.bot.huey charlie.bot.server.Huey
 #charlie.bot.dewey charlie.bot.server.Dewey

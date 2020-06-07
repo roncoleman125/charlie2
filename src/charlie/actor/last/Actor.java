@@ -39,7 +39,7 @@ import org.apache.log4j.Logger;
  * @author Ron.Coleman
  */
 abstract public class Actor implements Runnable {
-    protected final Logger LOG = Logger.getLogger(Actor.class);
+    private final Logger LOG = Logger.getLogger(Actor.class);
     
     /** Callback on message arrival */
     protected Listener listener;

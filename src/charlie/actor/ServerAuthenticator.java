@@ -34,12 +34,15 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author Ron.Coleman
  */
 public class ServerAuthenticator extends Authenticator {
+    protected final Logger LOG = Logger.getLogger(ServerAuthenticator.class);
+    
     private final GameServer server;
     
     public ServerAuthenticator(GameServer server) {

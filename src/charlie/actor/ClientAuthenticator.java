@@ -31,12 +31,15 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import org.apache.log4j.Logger;
 
 /**
  * This class implements the client-side login.
  * @author Ron.Coleman
  */
 public class ClientAuthenticator extends Authenticator {    
+    protected final Logger LOG = Logger.getLogger(ClientAuthenticator.class);
+    
     public Ticket send(String logname, String password) {
         return send(new Login(logname, password));
     }

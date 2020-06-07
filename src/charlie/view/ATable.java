@@ -223,42 +223,42 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
     /**
      * Paints the display some time after repainted invoked.
      *
-     * @param g_ Graphics context
+     * @param g Graphics context
      */
     @Override
-    public synchronized void paint(Graphics g_) {
-        super.paint(g_);
+    public synchronized void paint(Graphics g) {
+        super.paint(g);
 
-        Graphics2D g = (Graphics2D) g_;
+        Graphics2D g2d = (Graphics2D) g;
 
         // Render the paraphenelia
-        g.drawImage(this.instrImg, 140, 208, this);
-        g.drawImage(this.shoeImg, 540, 5, this);
-        g.drawImage(this.trayImg, 430, 5, this);
+        g2d.drawImage(this.instrImg, 140, 208, this);
+        g2d.drawImage(this.shoeImg, 540, 5, this);
+        g2d.drawImage(this.trayImg, 430, 5, this);
 
         // Render the upBet on the table
-        this.monies.get(Seat.YOU).render(g);
+        this.monies.get(Seat.YOU).render(g2d);
 
         // Render the hands
         for (int i = 0; i < handsManager.length; i++) {
-            handsManager[i].render(g);
+            handsManager[i].render(g2d);
         }
         
         // Render the side upBet
         if(sideBetView != null)
-            sideBetView.render(g);
+            sideBetView.render(g2d);
 
         // Render the burn card
         if(burnCard.isVisible())
-            burnCard.render(g);
+            burnCard.render(g2d);
         
         if(logan != null)
-            logan.render(g);
+            logan.render(g2d);
         
         // Java tool related stuff
         Toolkit.getDefaultToolkit().sync();
 
-        g_.dispose();
+        g.dispose();
     }
 
     /**
@@ -484,9 +484,10 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
         money.decrease(hid.getAmt());
 
-        if (hid.getSeat() != Seat.DEALER && numHands == 2) {
-            SoundFactory.play(Effect.TOUGH);
+        if (hid.getSeat() != Seat.DEALER) {
             loses++;
+            if(numHands == 2)
+                SoundFactory.play(Effect.TOUGH);
         }
         
         if(sideBetView != null)
@@ -512,9 +513,10 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
         money.increase(hid.getAmt());
 
-        if(hid.getSeat() != Seat.DEALER && numHands == 2) {
-            SoundFactory.play(Effect.NICE);
+        if(hid.getSeat() != Seat.DEALER) {
             wins++;
+            if(numHands == 2)
+                SoundFactory.play(Effect.NICE);
         }
 
         if(sideBetView != null)
@@ -530,7 +532,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
      */
     @Override
     public void lose(Hid hid) {
-        LOG.info("LOOSE for hid = "+hid+" amt = "+hid.getAmt());
+        LOG.info("LOSE for hid = "+hid+" amt = "+hid.getAmt());
         
         AHand hand = manos.get(hid);
 
@@ -539,9 +541,10 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
         AMoneyManager money = this.monies.get(hid.getSeat());
 
         money.decrease(hid.getAmt());
-        if(hid.getSeat() != Seat.DEALER && numHands == 2) {
-           ++loses;
-           SoundFactory.play(Effect.TOUGH);
+        if(hid.getSeat() != Seat.DEALER) {
+            ++loses;
+            if(numHands == 2)
+                SoundFactory.play(Effect.TOUGH);
         }
         
         if(sideBetView != null)
@@ -563,9 +566,10 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
         hand.setOutcome(AHand.Outcome.Push);
         
-        if(hid.getSeat() != Seat.DEALER && numHands == 2) {
-           ++pushes;
-           SoundFactory.play(Effect.PUSH);
+        if(hid.getSeat() != Seat.DEALER) {
+            ++pushes;
+            if(numHands == 2)
+                SoundFactory.play(Effect.PUSH);
         }
 
         if(sideBetView != null)
@@ -651,7 +655,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
         gameOver = false;
 
         // Create corresponding (animated) hands
-        for (Hid hid : hids) {
+        for (Hid hid: hids) {
             AHand hand =
                     hid.getSeat() == Seat.DEALER ? new ADealerHand(hid) : new AHand(hid);
 
@@ -679,6 +683,16 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
         // Game now over
         gameOver = true;
 
+        // All hands (not including dealer) must win, lose, or push to make a sound
+        if (wins == numHands - 1 && numHands > 2)
+            SoundFactory.play(Effect.NICE);
+
+        else if (loses == numHands - 1  && numHands > 2)
+            SoundFactory.play(Effect.TOUGH);
+
+        else if (pushes == numHands - 1  && numHands > 2)
+            SoundFactory.play(Effect.PUSH);
+        
         // Update the shoe size
         this.shoeSize = shoeSize;   
         
@@ -712,16 +726,6 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
             }).start();
 
         }
-
-        // All hands (not including dealer) must win, lose, or push to make a sound
-        if (wins == numHands - 1 && numHands > 2)
-            SoundFactory.play(Effect.NICE);
-
-        else if (loses == numHands - 1  && numHands > 2)
-            SoundFactory.play(Effect.TOUGH);
-
-        else if (pushes == numHands - 1  && numHands > 2)
-            SoundFactory.play(Effect.PUSH);
     }
 
     /**

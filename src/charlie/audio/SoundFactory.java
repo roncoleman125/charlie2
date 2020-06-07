@@ -100,20 +100,22 @@ public class SoundFactory {
     private static boolean enabled = true;
 
     /**
-     * Primes the sound line
+     * Primes the sound line so that playing sounds will be more real-time.
      */
     public static void prime() {
         // Get any sound
-        Sound sound = NICE_SOUNDS[0];
+        Sound sound = CHARLIE_SOUNDS[CHARLIE_SOUNDS.length-1];
         
         // Set volume to allowed minimum
+        float volume = sound.getVolume();
+        
         sound.setVolume(-80.0f);
         
         // Play the sound
         sound.play();
         
-        // Restore volume to allowed maximum
-        sound.setVolume(6.0f);
+        // Restore volume
+        sound.setVolume(volume);
     }
     
     /**
@@ -129,7 +131,6 @@ public class SoundFactory {
      * @param e Effect Effect to play
      */
     public static void play(Effect e) {
-        System.err.println("play invoked e = "+e+" enabled = "+enabled);
         if(!enabled)
             return;
         

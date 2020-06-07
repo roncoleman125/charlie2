@@ -35,7 +35,6 @@ import charlie.util.Play;
 import charlie.plugin.IAdvisor;
 import charlie.server.Ticket;
 import charlie.view.ATable;
-import static com.sun.java.accessibility.util.AWTEventMonitor.addItemListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.FileInputStream;
@@ -47,9 +46,10 @@ import java.util.Properties;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 import org.apache.log4j.Logger;
+import charlie.util.Constant;
+import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
 
 /**
  * This class implements the main game frame.
@@ -65,7 +65,6 @@ public class GameFrame extends javax.swing.JFrame {
     protected ATable table;
     protected boolean connected = false;
     protected final String COURIER_ACTOR = "COURIER";
-    protected final String ADVISOR_PROPERTY = "charlie.advisor";
     protected final String SOUND_EFFECTS_PROPERTY = "charlie.sounds.enabled";
     protected final List<Hid> hids = new ArrayList<>();
     protected final HashMap<Hid,Hand> hands = new HashMap<>();
@@ -163,19 +162,24 @@ public class GameFrame extends javax.swing.JFrame {
      */
     protected void loadAdvisor() {
         try {
-            String className = System.getProperty(ADVISOR_PROPERTY);
+            String className = System.getProperty(Constant.PLUGIN_ADVISOR);
 
             if (className == null)
                 return;
              
             LOG.info("advisor plugin detected: "+className);
-            Class<?> clazz;
-            clazz = Class.forName(className);
+            Class<?> clazz = Class.forName(className);
 
-            this.advisor = (IAdvisor) clazz.newInstance();
+            this.advisor = (IAdvisor) clazz.getDeclaredConstructor().newInstance();
             
             LOG.info("loaded advisor successfully");              
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+        } catch (ClassNotFoundException |
+                InstantiationException |
+                IllegalAccessException |
+                NoSuchMethodException |
+                SecurityException |
+                IllegalArgumentException |
+                InvocationTargetException ex) {
             LOG.error(ex.toString());
         }
     }

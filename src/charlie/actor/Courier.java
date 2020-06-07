@@ -52,12 +52,14 @@ import charlie.message.view.to.Win;
 import charlie.util.Constant;
 import java.net.InetAddress;
 import charlie.plugin.ITrap;
+import org.apache.log4j.Logger;
 
 /**
  * This class implements the courier actor between the client and server.
  * @author Ron Coleman
  */
 public class Courier extends Actor implements Listener {  
+    protected final Logger LOG = Logger.getLogger(Courier.class);
     protected final IUi ui;
     protected InetAddress myAddress;
     protected HoleCard holeCard;

@@ -43,4 +43,5 @@ public class Constant {
     public final static String PLUGIN_LOGAN = "charlie.bot.logan"; 
     public final static String PLUGIN_TRAP = "charlie.trap";
     public final static String PLUGIN_SHOE = "charlie.shoe";
+    public final static String PLUGIN_ADVISOR = "charlie.advisor";
 }

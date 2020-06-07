@@ -229,5 +229,18 @@ public class Sound {
 
         gainControl.getValue();
     }
+    
+    /**
+     * Gets the volume in relative decibels.
+     * @return Volume
+     */
+    public float getVolume() {
+        FloatControl gainControl =
+                (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
+
+        float vol = gainControl.getValue();
+        
+        return vol;
+    }
 }
 

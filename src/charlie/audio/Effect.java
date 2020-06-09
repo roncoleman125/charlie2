@@ -40,5 +40,7 @@ public enum Effect {
     TURN,
     NO_BET,
     BAD_PLAY,
-    ADIOS
+    ADIOS,
+    DOUBLE_DOWN,
+    SPLIT
 };

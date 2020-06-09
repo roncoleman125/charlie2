@@ -700,6 +700,8 @@ public class GameFrame extends javax.swing.JFrame {
                 if (!confirmed(hid, Play.DOUBLE_DOWN))
                     return;
 
+                SoundFactory.play(Effect.DOUBLE_DOWN);
+                
                 // Disable further playing since this is double-down
                 enablePlay(false);
 
@@ -744,6 +746,9 @@ public class GameFrame extends javax.swing.JFrame {
                 
                 if (!confirmed(hid, Play.SPLIT))
                     return;
+                
+                SoundFactory.play(Effect.SPLIT);
+                
                 // no more splits this go.
                 splitButton.setEnabled(false);
 

@@ -95,6 +95,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
     protected boolean bettable = false;
     protected boolean gameOver = true;
     protected boolean shufflePending = false;
+    protected boolean trucking = true;
     protected int shoeSize;
     protected Image instrImg;
     protected Image shoeImg;
@@ -105,7 +106,9 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
     protected int loses;
     protected int pushes;
     protected int wins;
-    
+    protected int blackjacks;
+    protected int charlies;
+    protected int busts;
     protected ISideBetView sideBetView;
     protected Properties props; 
     protected ILogan logan;
@@ -150,7 +153,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
      * Clears table of old bets, etc.
      */
     public void clear() {
-        wins = loses = pushes = 0;
+        wins = loses = pushes = blackjacks = charlies = busts = 0;
         
         for (AHandsManager animator : seats.values()) {
             animator.clear();
@@ -281,12 +284,14 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
                 && !turn.isBroke()
                 && you.isReady()
                 && dealer.isReady()
-                && !gameOver) {
+                && !gameOver
+                && trucking) {
             // "trucking" => I'm running
-            frame.enableTrucking(true);
+            trucking = false;
 
-            // Enable the buttons
+            // Enable play buttons
             frame.enablePlay(true);
+
         }
         
         burnCard.update();
@@ -379,7 +384,6 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
                 turn.enablePlaying(false);
             
             // Disable player input
-            this.frame.enableTrucking(false);
             this.frame.enablePlay(false);
         } else {           
             // Disable old hand
@@ -407,7 +411,6 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
             }
 
             if (logan == null) {
-                this.frame.enableTrucking(enable);
                 this.frame.enablePlay(enable);
             }
             else {
@@ -431,7 +434,10 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
      * @param handValues Hand values
      */
     @Override
-    public synchronized void deal(final Hid hid, final Card card, final int[] handValues) {       
+    public synchronized void deal(final Hid hid, final Card card, final int[] handValues) {
+        if(hid.getSeat() == Seat.YOU)
+            trucking = true;
+        
         SoundFactory.play(Effect.DEAL);
 
         AHand hand = manos.get(hid);
@@ -486,8 +492,8 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
         if (hid.getSeat() != Seat.DEALER) {
             loses++;
-            if(numHands == 2)
-                SoundFactory.play(Effect.TOUGH);
+            busts++;
+            SoundFactory.play(Effect.TOUGH);
         }
         
         if(sideBetView != null)
@@ -502,7 +508,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
      * @param hid Hand id
      */
     @Override
-    public void win(Hid hid) {
+    public void win(Hid hid) {        
         LOG.info("WIN for hid = "+hid+" amt = "+hid.getAmt());
         
         AHand hand = manos.get(hid);
@@ -513,11 +519,8 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
         money.increase(hid.getAmt());
 
-        if(hid.getSeat() != Seat.DEALER) {
+        if(hid.getSeat() != Seat.DEALER)
             wins++;
-            if(numHands == 2)
-                SoundFactory.play(Effect.NICE);
-        }
 
         if(sideBetView != null)
             sideBetView.ending(hid);
@@ -541,11 +544,9 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
         AMoneyManager money = this.monies.get(hid.getSeat());
 
         money.decrease(hid.getAmt());
-        if(hid.getSeat() != Seat.DEALER) {
+        
+        if(hid.getSeat() != Seat.DEALER)
             ++loses;
-            if(numHands == 2)
-                SoundFactory.play(Effect.TOUGH);
-        }
         
         if(sideBetView != null)
             sideBetView.ending(hid);
@@ -566,10 +567,10 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
         hand.setOutcome(AHand.Outcome.Push);
         
-        if(hid.getSeat() != Seat.DEALER) {
+        // Play puch sound only once
+        if(hid.getSeat() != Seat.DEALER && pushes == 0) {
             ++pushes;
-            if(numHands == 2)
-                SoundFactory.play(Effect.PUSH);
+            SoundFactory.play(Effect.PUSH);
         }
 
         if(sideBetView != null)
@@ -598,6 +599,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
         if (hid.getSeat() != Seat.DEALER) {
             SoundFactory.play(Effect.BJ);
             wins++;
+            blackjacks++;
         }
         
         if(sideBetView != null)
@@ -626,6 +628,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
         if(hid.getSeat() != Seat.DEALER) {
             SoundFactory.play(Effect.CHARLIE);
             wins++;
+            charlies++;
         }
         
         if(sideBetView != null)
@@ -683,15 +686,23 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
         // Game now over
         gameOver = true;
 
-        // All hands (not including dealer) must win, lose, or push to make a sound
-        if (wins == numHands - 1 && numHands > 2)
+        // NOTE: numHands includes the dealer
+        
+        // Play sound if all players win in non-heads up game.
+        if (wins == numHands-1 && numHands > 2)
             SoundFactory.play(Effect.NICE);
 
-        else if (loses == numHands - 1  && numHands > 2)
-            SoundFactory.play(Effect.TOUGH);
+        // Play a sound if heads up and no sound already played
+        else if(wins == 1 && numHands == 2 && blackjacks == 0 && charlies == 0)
+            SoundFactory.play(Effect.NICE);
 
-        else if (pushes == numHands - 1  && numHands > 2)
-            SoundFactory.play(Effect.PUSH);
+        // Play sound if all players lose in non-heads up
+        else if(loses == numHands-1 && numHands > 2)
+            SoundFactory.play(Effect.TOUGH);
+        
+        // Play a sound if player loses in heads up and sound not already played
+        else if(loses == 1 && numHands == 2 && busts == 0)
+            SoundFactory.play(Effect.TOUGH);
         
         // Update the shoe size
         this.shoeSize = shoeSize;   

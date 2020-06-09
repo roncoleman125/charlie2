@@ -48,6 +48,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 import charlie.util.Constant;
+import static charlie.util.Helper.sleep;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
@@ -72,7 +73,7 @@ public class GameFrame extends javax.swing.JFrame {
     protected final List<Hid> hids = new ArrayList<>();
     protected final HashMap<Hid,Hand> hands = new HashMap<>();
     protected int handIndex = 0;
-    protected boolean trucking = false;
+    protected boolean trucking = true;
     protected boolean dubblable;
     protected IAdvisor advisor;
     protected Hand dealerHand;
@@ -356,13 +357,13 @@ public class GameFrame extends javax.swing.JFrame {
         this.splitButton.setEnabled(state && splittable && trucking && manuallyControlled);
     }
 
-    /**
-     * Enables state, i.e., the player is able to make a play.
-     * @param state State
-     */
-    public void enableTrucking(boolean state) {
-        this.trucking = state;
-    }
+//    /**
+//     * Enables state, i.e., the player is able to make a play.
+//     * @param state State
+//     */
+//    public void enableTrucking(boolean state) {
+//        this.trucking = state;
+//    }
 
     /**
      * Recovers in event we fail catastrophically.
@@ -646,10 +647,11 @@ public class GameFrame extends javax.swing.JFrame {
 
                 if (!confirmed(hid, Play.STAY))
                     return;
-
-                courier.stay(hids.get(frame.handIndex));
-                enableTrucking(false);
+                
+                // Disable further play since this is a STAY
                 enablePlay(false);
+                
+                courier.stay(hids.get(frame.handIndex));
             }
         });        
     }//GEN-LAST:event_stayButtonActionPerformed
@@ -698,9 +700,7 @@ public class GameFrame extends javax.swing.JFrame {
                 if (!confirmed(hid, Play.DOUBLE_DOWN))
                     return;
 
-                // Disable further playing since this is ouble-down
-                enableTrucking(false);
-
+                // Disable further playing since this is double-down
                 enablePlay(false);
 
                 // No further dubbling until the next bet made
@@ -746,7 +746,6 @@ public class GameFrame extends javax.swing.JFrame {
                     return;
                 // no more splits this go.
                 splitButton.setEnabled(false);
-
 
                 // tell the dealer we requested a split and provide an HID
                 courier.split(hid);

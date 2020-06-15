@@ -693,7 +693,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
             SoundFactory.play(Effect.NICE);
 
         // Play a sound if heads up and no sound already played
-        else if(wins == 1 && numHands == 2 && blackjacks == 0 && charlies == 0)
+        else if(wins == 1 && blackjacks == 0 && charlies == 0 && numHands == 2)
             SoundFactory.play(Effect.NICE);
 
         // Play sound if all players lose in non-heads up
@@ -701,7 +701,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
             SoundFactory.play(Effect.TOUGH);
         
         // Play a sound if player loses in heads up and sound not already played
-        else if(loses == 1 && numHands == 2 && busts == 0)
+        else if(loses == 1 && busts == 0 && numHands == 2)
             SoundFactory.play(Effect.TOUGH);
         
         // Update the shoe size

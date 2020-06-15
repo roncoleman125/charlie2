@@ -74,7 +74,6 @@ public class SoundFactory {
         // https://www.mediacollege.com/downloads/sound-effects/star-wars/
         new Sound("audio/hansolo_badfeeling-2.wav"),
         new Sound("audio/Fail.wav"),
-        new Sound("audio/Incorrect.wav"),
         new Sound("audio/wrong 3.wav"),
     };
     public final static Sound[] PUSH_SOUNDS ={ 
@@ -86,10 +85,10 @@ public class SoundFactory {
     private final static Sound SPLIT_SOUND = new Sound("audio/Arcade Dungeon Health Restored.wav");
     private final static Sound CHIPS_IN_SOUIND = new Sound("audio/Games_Poker_Chip_08950004.wav");
     private final static Sound CHIPS_OUT_SOUND = new Sound("audio/Games_Poker_Chip_08950003.wav");
-    private final static Sound SHUFFLE_SOUND = new Sound("audio/013012_Casino-Cards_28_A1.wav");
+    private final static Sound SHUFFLE_SOUND = new Sound("audio/013012_Casino-Cards_28_A1-25.wav");
     private final static Sound TURN_SOUND = new Sound("audio/Telemet_33G_HD2-32076.wav");
     private final static Sound NO_BET_SOUND = new Sound("audio/Arcade Fun Wrong Move.wav");
-    private final static Sound BAD_PLAY_SOUND = new Sound("audio/Arcade Game Annoying Beep.wav");
+    private final static Sound BAD_PLAY_SOUND = new Sound("audio/Incorrect.wav");
     private final static Sound ADIOS_SOUND = new Sound("audio/Arcade Fun Fall.wav");
     
     private static long lastTime = System.currentTimeMillis();  
@@ -138,7 +137,7 @@ public class SoundFactory {
                 TURN_SOUND.play();
                 break;
             case SHUFFLING:
-                backgroundPlay(SHUFFLE_SOUND,2);
+                backgroundPlay(SHUFFLE_SOUND);
                 break;
             case DEAL:
                 backgroundPlay(DEAL_SOUND1);

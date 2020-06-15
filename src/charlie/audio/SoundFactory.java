@@ -36,23 +36,29 @@ public class SoundFactory {
 //    private final static Sound DEAL_SOUND0 = new Sound("audio/PlayingCardsPo_eOnFelt01_87.wav");
     private final static Sound DEAL_SOUND1 = new Sound("audio/tap.wav");
 //    private final static Sound DEAL_SOUND2 = new Sound("audio/Telemet_33G_HD2-32076.wav");
-    private final static Sound[] CHARLIE_SOUNDS = { 
+    public final static Sound[] CHARLIE_SOUNDS = { 
         new Sound("audio/shazam2.wav"),
-        new Sound("audio/impressive-2.wav")
+//        new Sound("audio/impressive-2.wav"),
+        new Sound("audio/mostimprs-2.wav")
     };
-    private final static Sound[] BJ_SOUNDS = { 
+    public final static Sound[] BJ_SOUNDS = { 
         new Sound("audio/you-can-do-it.wav"), 
         new Sound("audio/you-got-it-1.wav"),
         new Sound("audio/wahoo.wav"),
         new Sound("audio/impressive-2.wav")
     };
-    private final static Sound[] NICE_SOUNDS = { 
+    public final static Sound[] NICE_SOUNDS = { 
         new Sound("audio/wow.wav"), 
         new Sound("audio/austin_yeahbaby_converted.wav"),
         new Sound("audio/woow.wav"),
         new Sound("audio/goodshot-2.wav"),
+        new Sound("audio/Glock Success Ding.wav"),
+        new Sound("audio/Win Game Sound.wav"),
+        new Sound("audio/Win_Short_Sound.wav"),
+        new Sound("audio/You Win A.wav"),
+        new Sound("audio/You Win B.wav"),
     };
-    private final static Sound[] OUCH_SOUNDS = {
+    public final static Sound[] OUCH_SOUNDS = {
         new Sound("audio/evil_laf.wav"), 
         new Sound("audio/aaaah.wav"), 
         new Sound("audio/bone_converted.wav"), 
@@ -66,9 +72,12 @@ public class SoundFactory {
         new Sound("audio/jabba-the-hutt-laughing.wav"),
         new Sound("audio/ouch.wav"),
         // https://www.mediacollege.com/downloads/sound-effects/star-wars/
-        new Sound("audio/hansolo_badfeeling-2.wav")
+        new Sound("audio/hansolo_badfeeling-2.wav"),
+        new Sound("audio/Fail.wav"),
+        new Sound("audio/Incorrect.wav"),
+        new Sound("audio/wrong 3.wav"),
     };
-    private final static Sound[] PUSH_SOUNDS ={ 
+    public final static Sound[] PUSH_SOUNDS ={ 
         new Sound("audio/trap.wav") ,
         new Sound("audio/Arcade Game Down Bleeps.wav")
 //        new Sound("audio/whatwsth.wav")

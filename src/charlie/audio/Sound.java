@@ -26,8 +26,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -36,6 +34,7 @@ import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import org.apache.log4j.Logger;
 
 /**
  * This class is a facade for the Java sound API. It was modified from the
@@ -57,11 +56,16 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  * @author Ron Coleman
  */
 public class Sound {
-    public enum Cue { DEAL, CHARLIE, BJ, NICE, TOUCH };
-    private final int EXTERNAL_BUFFER_SIZE = 128000;
+    private static final Logger LOG = Logger.getLogger(Sound.class); 
+    
+    // Buffer size to read in the sound -- it must be big enough to hold
+    // the PCM otherwise the sound ending will be clipped.
+    private final int BUFFER_SIZE = 128000*4;
+    
     private SourceDataLine line;
     private AudioInputStream audioInputStream;
     private Bais bais;
+    private String path;
 
     public static void main(String[] args) {
         Sound s = new Sound("audio/013012_Casino-Cards_27_A1.wav");
@@ -71,10 +75,11 @@ public class Sound {
 
     /**
      * Constructor
-     * @param filename File name
+     * @param path File name
      */
-    public Sound(String filename) {
-        File soundFile = new File(filename);
+    public Sound(String path) {
+        this.path = path;
+        File soundFile = new File(path);
 
         /*
          We have to read in the sound file.
@@ -82,20 +87,18 @@ public class Sound {
         audioInputStream = null;
         try {
             FileInputStream fis = new FileInputStream(soundFile);
-            byte[] buf = new byte[EXTERNAL_BUFFER_SIZE];
+            byte[] buf = new byte[BUFFER_SIZE];
 
-            int n = fis.read(buf, 0, EXTERNAL_BUFFER_SIZE);
+            int n = fis.read(buf, 0, BUFFER_SIZE);
             
             bais = new Bais(buf, 0, n);
             
             audioInputStream = AudioSystem.getAudioInputStream(bais);
         } catch (FileNotFoundException e) {
-            System.err.println("audio files do not appear to be installed");
-            System.exit(1);
+            LOG.error(e+"");
         }
         catch(IOException | UnsupportedAudioFileException e) {
-            e.printStackTrace();
-            System.exit(1);
+            LOG.error(e+"");
         }
 
         /*
@@ -131,8 +134,8 @@ public class Sound {
          some default value for the buffer size.
          */
         line = null;
-        DataLine.Info info = new DataLine.Info(SourceDataLine.class,
-                audioFormat);
+        
+        DataLine.Info info = new DataLine.Info(SourceDataLine.class,audioFormat);
         try {
             line = (SourceDataLine) AudioSystem.getLine(info);
 
@@ -142,23 +145,22 @@ public class Sound {
              */
             line.open(audioFormat);
         } catch (LineUnavailableException e) {
-            e.printStackTrace();
-            System.exit(1);
+            LOG.error(e+"");
         } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
+            LOG.error(e+"");
         }
     }
 
+    /**
+     * Plays the sound synchronously.
+     */
     public void play() {
         try {
             bais.rewind();
             
             audioInputStream = AudioSystem.getAudioInputStream(bais);
-        } catch (UnsupportedAudioFileException ex) {
-            Logger.getLogger(Sound.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(Sound.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnsupportedAudioFileException | IOException ex) {
+            LOG.error(ex+"");
         }
         
         /*
@@ -182,15 +184,15 @@ public class Sound {
          */
 
         int nBytesRead = 0;
-        byte[] abData = new byte[EXTERNAL_BUFFER_SIZE];
+        byte[] bytes = new byte[BUFFER_SIZE];
         while (nBytesRead != -1) {
             try {
-                nBytesRead = audioInputStream.read(abData, 0, abData.length);
+                nBytesRead = audioInputStream.read(bytes, 0, bytes.length);
             } catch (IOException e) {
-                e.printStackTrace();
+                LOG.error(e+"");
             }
             if (nBytesRead >= 0) {
-                int nBytesWritten = line.write(abData, 0, nBytesRead);
+                line.write(bytes, 0, nBytesRead);
             }
         }
 //        try {
@@ -209,6 +211,7 @@ public class Sound {
          path to this solution.
          */
         line.drain();
+
         //        /*
         //         All data are played. We can close the shop.
         //         */
@@ -223,7 +226,7 @@ public class Sound {
      */
     public void setVolume(float db) {
         FloatControl gainControl =
-                (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
+            (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
         
         gainControl.setValue(db);
 
@@ -236,11 +239,19 @@ public class Sound {
      */
     public float getVolume() {
         FloatControl gainControl =
-                (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
+            (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
 
         float vol = gainControl.getValue();
         
         return vol;
+    }
+    
+    /**
+     * Gets the sound file path.
+     * @return File system path
+     */
+    public String getPath() {
+        return path;
     }
 }
 

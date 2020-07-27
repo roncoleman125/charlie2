@@ -382,29 +382,31 @@ public class Dealer implements Serializable {
     
     /**
      * Hits player hand upon request only AFTER the initial rounds. 
-     * @param player Player requesting a hit.
+     * @param iplayer Player requesting a hit.
      * @param hid Player's hand id
      */
-    public void hit(IPlayer player,Hid hid) {
+    public void hit(IPlayer iplayer,Hid hid) {
         // Validate the request
         Hand hand = validate(hid);
         if(hand == null) {
-            LOG.error("got invalid HIT player = "+player);
+            LOG.error("got invalid HIT player = "+iplayer);
             return;
         }
         
         // Deal a card
         Card card = deal();
-        
         hand.hit(card);
-        LOG.info("hit hid = "+hid+" with "+card);
         
-        for (IPlayer _player : playerSequence)
-            _player.deal(hid, card, hand.getValues());
+        // All players MUST test for charlie. Otherwise they will
+        // not know they have this hand and may try to hit if hand<21.
+        for (IPlayer player : playerSequence) {
+            player.deal(hid, card, hand.getValues());
+        }
         
+        LOG.info("hit hid = " + hid + " with " + card);
+
         // If the hand isBroke, we're done with this hand
         if(hand.isBroke()) {
-            
             updateBankroll(hid,LOSS);
             
             // Tell everyone what happened
@@ -413,9 +415,8 @@ public class Dealer implements Serializable {
             
             goNextHand();
         }
-        // If hand got a isCharlie, we're done with this hand
+        // If hand got a Charlie or Blackjack, we're done with this hand
         else if(hand.isCharlie()) {
-            
             hid.multiplyAmt(CHARLIE_PAYS);
             
             updateBankroll(hid,PROFIT);
@@ -426,23 +427,32 @@ public class Dealer implements Serializable {
             
             goNextHand();
         }
+        else if(hand.isBlackjack()) {
+            hid.multiplyAmt(BLACKJACK_PAYS);
+                        updateBankroll(hid,PROFIT);
+            
+            // Tell everyone what happened
+            for (IPlayer _player : playerSequence)
+                _player.charlie(hid);
+            
+            goNextHand();
+        }
         // Player has 21: don't force player to break!
         else if(hand.getValue() == 21) {
-            
             goNextHand();
         }
     }    
     
     /**
      * Stands down player hand upon request only AFTER the initial rounds. 
-     * @param player Player requesting a hit.
+     * @param iplayer Player requesting a hit.
      * @param hid Player's hand id
      */
-    public void stay(IPlayer player, Hid hid) {
+    public void stay(IPlayer iplayer, Hid hid) {
         // Validate the request
         Hand hand = validate(hid);
         if(hand == null) {
-            LOG.error("got invalid STAY player = "+player);
+            LOG.error("got invalid STAY player = "+iplayer);
             return;
         }
         
@@ -454,15 +464,15 @@ public class Dealer implements Serializable {
     
     /**
      * Double down player hand upon request only AFTER the initial rounds. 
-     * @param player Player requesting a hit.
+     * @param iplayer Player requesting a hit.
      * @param hid Player's hand id
      */    
-    public void doubleDown(IPlayer player, Hid hid) {
+    public void doubleDown(IPlayer iplayer, Hid hid) {
         // Validate the request
         Hand hand = validate(hid);
         
         if(hand == null) {
-            LOG.error("got invalide DOUBLE DOWN player = "+player);
+            LOG.error("got invalide DOUBLE DOWN player = "+iplayer);
             return;
         }
         
@@ -477,8 +487,8 @@ public class Dealer implements Serializable {
         hand.hit(card);
         
         // Send the card out to everyone
-        for (IPlayer _player : playerSequence)
-            _player.deal(hid, card, hand.getValues());
+        for (IPlayer player : playerSequence)
+            player.deal(hid, card, hand.getValues());
         
         // If hand broke, update the account and tell everyone
         if(hand.isBroke()) {
@@ -495,17 +505,17 @@ public class Dealer implements Serializable {
     /**
      * Split player hand upon request from Player. Only "human" player can split.
      * Player cannot split, splits.
-     * @param player the player who requested the split
+     * @param iplayer the player who requested the split
      * @param hid the hand to which needs splitting.
      */
-    public void split(IPlayer player, Hid hid){
+    public void split(IPlayer iplayer, Hid hid){
         
         // First we need to validate original hand
         Hand origHand = validate(hid);
         
         // Log any errors
         if(origHand == null) {
-            LOG.error("got invalid SPLIT player = "+player);
+            LOG.error("got invalid SPLIT player = "+iplayer);
             return;
         }
         
@@ -530,7 +540,7 @@ public class Dealer implements Serializable {
         LOG.info("HID: " + newHid + " created for hand: " + newHand );
 
         // Add this hand to this player
-        players.put(newHand.getHid(), player);
+        players.put(newHand.getHid(), iplayer);
         
         // Now that we have two hands we need to manipulate the handSeqIndex
         // Think it will be easier to add it AFTER the current hand since that
@@ -541,11 +551,11 @@ public class Dealer implements Serializable {
         hands.put(newHid, newHand);
         
         // Send back to the ATable what has just occured.
-        player.split(newHid, hid);
+        iplayer.split(newHid, hid);
                 
         // Need to hit one of the hands, might as well make it the 
         // original.
-        this.hit(player, hid);
+        this.hit(iplayer, hid);
     }
      
     /**
@@ -704,11 +714,11 @@ public class Dealer implements Serializable {
      */
     protected void signal() {
         for (IPlayer player: playerSequence) {
-            // Reveal hole card for bot
+            // Reveal hole card to bot
             if(player instanceof IBot)
                 player.deal(dealerHand.getHid(), holeCard, dealerHand.getValues());
             
-            // Tell player it's dealers turn
+            // Tell player it's dealer's turn
             player.play(this.dealerHand.getHid());
         }    
     }
@@ -763,12 +773,15 @@ public class Dealer implements Serializable {
      * @return True if had is valid, false otherwise
      */
     protected Hand validate(Hid hid) {
+        if(gameOver)
+            return null;
+        
         if(hid == null)
             return null;
         
         Hand hand = hands.get(hid);
         
-        if(hand.isBroke())
+        if(hand == null || hand.isBroke() || hand.isCharlie() || hand.isBlackjack())
             return null;
         
         if(players.get(hid) != active)

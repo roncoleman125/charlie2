@@ -93,7 +93,7 @@ public class Courier extends Actor implements Listener {
                 
                 trap = (ITrap) clazz.newInstance();
                 
-                info("monitor installed successfully: "+trap.getClass().getSimpleName());
+                info("trap installed successfully: "+trap.getClass().getSimpleName());
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
                error("exception caught: "+ex);
             }

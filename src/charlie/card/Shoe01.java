@@ -29,7 +29,10 @@ import java.util.Random;
  * This class implements a test scenario.
  * @author Ron Coleman
  */
-public class Shoe01 extends Shoe {   
+public class Shoe01 extends Shoe {  
+    /**
+     * {@inhertDoc}
+     */
     @Override
     public void init() {
         super.ran = new Random(/*1*/);

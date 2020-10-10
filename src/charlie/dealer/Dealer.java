@@ -505,17 +505,19 @@ public class Dealer implements Serializable {
     /**
      * Split player hand upon request from Player. Only "human" player can split.
      * Player cannot split, splits.
-     * @param iplayer the player who requested the split
+     * @param player the player who requested the split
      * @param hid the hand to which needs splitting.
      */
-    public void split(IPlayer iplayer, Hid hid){
+    public void split(IPlayer player, Hid hid) {
+        if(player instanceof IBot)
+            throw new UnsupportedOperationException("split not supported for IBot");
         
         // First we need to validate original hand
         Hand origHand = validate(hid);
         
         // Log any errors
         if(origHand == null) {
-            LOG.error("got invalid SPLIT player = "+iplayer);
+            LOG.error("got invalid SPLIT player = "+player);
             return;
         }
         
@@ -540,7 +542,7 @@ public class Dealer implements Serializable {
         LOG.info("HID: " + newHid + " created for hand: " + newHand );
 
         // Add this hand to this player
-        players.put(newHand.getHid(), iplayer);
+        players.put(newHand.getHid(), player);
         
         // Now that we have two hands we need to manipulate the handSeqIndex
         // Think it will be easier to add it AFTER the current hand since that
@@ -551,11 +553,11 @@ public class Dealer implements Serializable {
         hands.put(newHid, newHand);
         
         // Send back to the ATable what has just occured.
-        iplayer.split(newHid, hid);
+        player.split(newHid, hid);
                 
         // Need to hit one of the hands, might as well make it the 
         // original.
-        this.hit(iplayer, hid);
+        this.hit(player, hid);
     }
      
     /**

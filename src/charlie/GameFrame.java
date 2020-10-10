@@ -48,12 +48,9 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 import charlie.util.Constant;
-import static charlie.util.Helper.sleep;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.util.logging.Level;
+
 
 /**
  * This class implements the main game frame.

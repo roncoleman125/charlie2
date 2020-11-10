@@ -138,7 +138,7 @@ public class AHand {
                 return;
             
             // Figure the outcome text
-              String outcomeText = "";             
+            String outcomeText = "";             
             if(outcome != Outcome.None)
                 outcomeText += " " + outcome.toString().toUpperCase() + " ! "; 
             

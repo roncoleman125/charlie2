@@ -329,7 +329,7 @@ public class Dealer implements Serializable {
      * Insures against dealer Blackjack
      */
     protected void insure() {
-        // TODO
+        throw new UnsupportedOperationException("insure is not supported");
     }
     
     /**

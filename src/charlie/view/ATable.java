@@ -278,7 +278,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
             sideBetView.update(); 
         
         // If it's my turn, I didn't break, and my cards have landed,
-        // then enable enable to play
+        // then enable to play
         if (turn != null
                 && turn.hid.getSeat() == Seat.YOU
                 && !turn.isBroke()

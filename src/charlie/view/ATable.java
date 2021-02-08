@@ -953,7 +953,7 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
         AHand hand = manos.get(origHid);
         
         // We need to remove one of the cards put this in new hand later
-        ACard card = hand.cards.remove(1);
+        ACard card = (ACard) hand.cards.remove(1);
         
         // Revalue the hands values
         int[] newHandValues = splitRevalue(hand);

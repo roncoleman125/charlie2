@@ -291,7 +291,6 @@ public final class ATable extends JPanel implements Runnable, IUi, MouseListener
 
             // Enable play buttons
             frame.enablePlay(true);
-
         }
         
         burnCard.update();
